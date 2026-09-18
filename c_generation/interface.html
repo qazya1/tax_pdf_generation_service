@@ -1,0 +1,2397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Return Form</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+            --border-color: #bdc3c7;
+            --bg-color: #ecf0f1;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1, h2, h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+        
+        .error {
+            color: var(--error-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .submit-btn {
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .add-row-btn, .remove-row-btn {
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-right: 5px;
+        }
+        
+        .conditional-section {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 4px;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .price-calculation {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        .price-item {
+            margin-bottom: 5px;
+        }
+        
+        .price-total {
+            font-weight: bold;
+            margin-top: 10px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .download-link {
+            display: block;
+            margin: 10px 0;
+            padding: 12px 15px;
+            background-color: #e8f4fc;
+            border: 1px solid #3498db;
+            border-radius: 4px;
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .download-link:hover {
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+        }
+
+        .download-section h3 {
+            color: #2c3e50;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #bdc3c7;
+            padding-bottom: 5px;
+        }
+
+        .download-section h4 {
+            color: #34495e;
+            margin-top: 15px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="price-calculation">
+        <h3>Price Calculation</h3>
+        <div class="price-item">Base Price: $<span id="base-price">1000</span></div>
+        <div class="price-item">Additional Years: $<span id="additional-years-price">0</span></div>
+        <div class="price-item">Personal Returns: $<span id="personal-returns-price">0</span></div>
+        <div class="price-item">Notary: $<span id="notary-price">0</span></div>
+        <div class="price-total">Total: $<span id="total-price">1000</span></div>
+    </div>
+
+    <div class="container">
+        <h1>Tax Return Form</h1>
+        
+        <form id="taxForm">
+            <!-- Section 1: Company Information -->
+            <div class="section">
+                <h2>1. Company Information</h2>
+                
+                <div class="form-group">
+                    <label for="filing_year">Filing Year *</label>
+                    <select id="filing_year" name="filing_year" required>
+                        <option value="">Select Year</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <div class="error" id="filing_year_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="company_name">Company Name *</label>
+                    <input type="text" id="company_name" name="company_name" required>
+                    <div class="error" id="company_name_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="company_type">Company Type *</label>
+                    <select id="company_type" name="company_type" required>
+                        <option value="">Select Type</option>
+                        <option value="C corp">C corp</option>
+                        <option value="S corp">S corp</option>
+                    </select>
+                    <div class="error" id="company_type_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="company_street_address">Company Street Address *</label>
+                    <input type="text" id="company_street_address" name="company_street_address" required>
+                    <div class="error" id="company_street_address_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="company_town">Company Town *</label>
+                    <input type="text" id="company_town" name="company_town" required>
+                    <div class="error" id="company_town_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="company_state">Company State *</label>
+                    <input type="text" id="company_state" name="company_state" required>
+                    <div class="error" id="company_state_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="company_zip">Company ZIP *</label>
+                    <input type="text" id="company_zip" name="company_zip" pattern="^\d{5}(-\d{4})?$" required placeholder="00000 or 00000-0000">
+                    <div class="error" id="company_zip_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ein">EIN *</label>
+                    <input type="text" id="ein" name="ein" pattern="^\d{2}-\d{7}$|^\d{9}$" placeholder="000000000" required>
+                    <div class="error" id="ein_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date_inc">Date Incorporated *</label>
+                    <input type="date" id="date_inc" name="date_inc" required>
+                    <div class="error" id="date_inc_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="business_activity_code">Business Activity Code (NAICS) *</label>
+                    <input type="text" id="business_activity_code" name="business_activity_code" pattern="^\d{2}-\d{4}$|^\d{6}$" placeholder="000000" required>
+                    <div class="error" id="business_activity_code_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="business_activity">Business Activity *</label>
+                    <input type="text" id="business_activity" name="business_activity" required>
+                    <div class="error" id="business_activity_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="principal_product_service">Principal Product/Service *</label>
+                    <input type="text" id="principal_product_service" name="principal_product_service" required>
+                    <div class="error" id="principal_product_service_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sells_products_or_services">Does company sell products or services? *</label>
+                    <select id="sells_products_or_services" name="sells_products_or_services" required>
+                        <option value="">Select Option</option>
+                        <option value="Products">Products</option>
+                        <option value="Services">Services</option>
+                        <option value="Both">Both</option>
+                    </select>
+                    <div class="error" id="sells_products_or_services_error"></div>
+                </div>
+                
+                <div class="conditional-section" id="products_percentage_section">
+                    <div class="form-group">
+                        <label for="products_percentage">How many % products take in the general share of receipts? *</label>
+                        <input type="number" id="products_percentage" name="products_percentage" min="1" max="99">
+                        <div class="error" id="products_percentage_error"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone (Optional)</label>
+                    <input type="tel" id="phone" name="phone">
+                    <div class="error" id="phone_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ceo_name">CEO Name *</label>
+                    <input type="text" id="ceo_name" name="ceo_name" required>
+                    <div class="error" id="ceo_name_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ceo_position">Position *</label>
+                    <input type="text" id="ceo_position" name="ceo_position" required>
+                    <div class="error" id="ceo_position_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ceo_signature">CEO Signature (PNG) *</label>
+                    <input type="file" id="ceo_signature" name="ceo_signature" accept=".png" required>
+                    <div class="error" id="ceo_signature_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="total_assets">Total Assets at the end of year (Optional)</label>
+                    <input type="number" id="total_assets" name="total_assets" min="0" step="0.01">
+                    <div class="error" id="total_assets_error"></div>
+                    <div class="warning" id="total_assets_warning" style="display: none;">
+                        We do not recommend entering an amount greater than $250,000. Values above this threshold may trigger special tax rules and additional reporting requirements which could result in an inaccurate tax return!
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 2: Financial Information -->
+            <div class="section">
+                <h2>2. Financial Information</h2>
+                
+                <div class="form-group">
+                    <label for="gross_receipts_sales">Gross Receipts / Sales *</label>
+                    <input type="number" id="gross_receipts_sales" name="gross_receipts_sales" min="0" step="0.01" required>
+                    <div class="error" id="gross_receipts_sales_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="returns_allowances">Returns & Allowances (Optional)</label>
+                    <input type="number" id="returns_allowances" name="returns_allowances" min="0" step="0.01">
+                    <div class="error" id="returns_allowances_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cost_of_goods_sold">Cost of Goods Sold (Optional)</label>
+                    <input type="number" id="cost_of_goods_sold" name="cost_of_goods_sold" min="0" step="0.01">
+                    <div class="error" id="cost_of_goods_sold_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gross_rents">Gross Rents (Optional)</label>
+                    <input type="number" id="gross_rents" name="gross_rents" min="0" step="0.01">
+                    <div class="error" id="gross_rents_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="has_capital_gain_income">Did company have Capital Gain Income? *</label>
+                    <select id="has_capital_gain_income" name="has_capital_gain_income" required>
+                        <option value="">Select Option</option>
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                    <div class="error" id="has_capital_gain_income_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="compensation_of_officers">Compensation of Officers (Total for all officers) *</label>
+                    <input type="number" id="compensation_of_officers" name="compensation_of_officers" min="0" step="0.01" required>
+                    <div class="error" id="compensation_of_officers_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="has_employees">Does your company have employees? *</label>
+                    <select id="has_employees" name="has_employees" required>
+                        <option value="">Select Option</option>
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                    <div class="error" id="has_employees_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="salaries_wages">Salaries & Wages (Optional)</label>
+                    <input type="number" id="salaries_wages" name="salaries_wages" min="0" step="0.01">
+                    <div class="error" id="salaries_wages_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="taxes_licenses">Taxes & Licenses (Optional)</label>
+                    <input type="number" id="taxes_licenses" name="taxes_licenses" min="0" step="0.01">
+                    <div class="error" id="taxes_licenses_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="repairs_maintenance">Repairs and maintenance (Optional)</label>
+                    <input type="number" id="repairs_maintenance" name="repairs_maintenance" min="0" step="0.01">
+                    <div class="error" id="repairs_maintenance_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="refund_or_tax_due">Refund or Tax Due *</label>
+                    <select id="refund_or_tax_due" name="refund_or_tax_due" required>
+                        <option value="">Select Option</option>
+                        <option value="TAX_REFUND">Refund Amount</option>
+                        <option value="TAX_DUE">Tax Due Amount</option>
+                    </select>
+                    <div class="error" id="refund_or_tax_due_error"></div>
+                </div>
+                
+                <div class="conditional-section" id="refund_amount_section">
+                    <div class="form-group">
+                        <label for="refund_amount">Refund Amount *</label>
+                        <input type="number" id="refund_amount" name="refund_amount" min="0" step="0.01">
+                        <div class="error" id="refund_amount_error"></div>
+                    </div>
+                </div>
+                
+                <div class="conditional-section" id="tax_due_amount_section">
+                    <div class="form-group">
+                        <label for="tax_due_amount">Tax Due Amount *</label>
+                        <input type="number" id="tax_due_amount" name="tax_due_amount" min="0" step="0.01">
+                        <div class="error" id="tax_due_amount_error"></div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="account_number">Account Number *</label>
+                    <input type="text" id="account_number" name="account_number" pattern="^\d+$" required>
+                    <div class="error" id="account_number_error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="routing_number">Routing Number *</label>
+                    <input type="text" id="routing_number" name="routing_number" pattern="^\d{9}$" required placeholder="000000000">
+                    <div class="error" id="routing_number_error"></div>
+                </div>
+            </div>
+            
+            <!-- Section 3: Owners Information -->
+            <div class="section">
+                <h2>3. Owners Information</h2>
+                <p>Maximum 8 owners</p>
+                
+                <div class="table-container">
+                    <table id="owners_table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>SSN</th>
+                                <th>% Ownership</th>
+                                <th>Generate Personal Tax Return</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be added by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button type="button" id="add_owner_btn" class="add-row-btn">Add Owner</button>
+                <div class="error" id="owners_error"></div>
+                
+                <!-- Personal Tax Return Details (appears when at least one owner has generate_personal_tax_return = true) -->
+                <div class="conditional-section" id="personal_tax_returns_section">
+                    <h3>Personal Tax Returns Details</h3>
+                    <div id="personal_tax_returns_container">
+                        <!-- Personal tax return forms will be added here by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 4: 1125-E Table (Officers Compensation) -->
+            <div class="section">
+                <h2>4. 1125-E Table (Officers Compensation)</h2>
+                <p>Required if: 1) Business rules require it; 2) At least one owner has personal tax return; 3) Both</p>
+                
+                <div class="table-container">
+                    <table id="officers_table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>SSN</th>
+                                <th>% Time</th>
+                                <th>% Ownership</th>
+                                <th>% of Total Compensation</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be added by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button type="button" id="add_officer_btn" class="add-row-btn">Add Officer</button>
+                <div class="error" id="officers_error"></div>
+            </div>
+            
+            <!-- Section 5: Preparer Information -->
+            <div class="section">
+                <h2>5. Preparer Information</h2>
+                
+                <div class="form-group">
+                    <label for="prepared_by">Did the return/s prepared by company bookkeeper or by CPA/Paid preparer? *</label>
+                    <select id="prepared_by" name="prepared_by" required>
+                        <option value="">Select Option</option>
+                        <option value="Bookkeeper">Bookkeeper</option>
+                        <option value="CPA/Paid Preparer">CPA/Paid Preparer</option>
+                    </select>
+                    <div class="error" id="prepared_by_error"></div>
+                </div>
+                
+                <div class="conditional-section" id="cpa_preparer_section">
+                    <div class="form-group">
+                        <label for="use_own_cpa">Do you want to use you own CPA details or our details? *</label>
+                        <select id="use_own_cpa" name="use_own_cpa" required>
+                            <option value="">Select Option</option>
+                            <option value="true">My own details</option>
+                            <option value="false">Your CPA</option>
+                        </select>
+                        <div class="error" id="use_own_cpa_error"></div>
+                    </div>
+                    
+                    <div class="conditional-section" id="own_cpa_details_section">
+                        <div class="form-group">
+                            <label for="preparer_name">Preparer Name *</label>
+                            <input type="text" id="preparer_name" name="preparer_name">
+                            <div class="error" id="preparer_name_error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="preparer_signature">Preparer's Signature (PNG) *</label>
+                            <input type="file" id="preparer_signature" name="preparer_signature" accept=".png">
+                            <div class="error" id="preparer_signature_error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="firm_name">Firm's Name *</label>
+                            <input type="text" id="firm_name" name="firm_name">
+                            <div class="error" id="firm_name_error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="firm_address">Firm's Address *</label>
+                            <input type="text" id="firm_address" name="firm_address">
+                            <div class="error" id="firm_address_error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="firm_ein">Firm's EIN *</label>
+                            <input type="text" id="firm_ein" name="firm_ein" pattern="^\d{2}-\d{7}$|^\d{9}$">
+                            <div class="error" id="firm_ein_error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ptin">PTIN *</label>
+                            <input type="text" id="ptin" name="ptin" pattern="^P\d{8}$|^P\s\d{8}$|^P-\d{8}$">
+                            <div class="error" id="ptin_error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="firm_phone">Firm Phone No. *</label>
+                            <input type="tel" id="firm_phone" name="firm_phone">
+                            <div class="error" id="firm_phone_error"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section 6: Future Tax Returns -->
+            <div class="section">
+                <h2>6. Future Tax Returns</h2>
+                
+                <div class="form-group">
+                    <label for="need_multiple_years">Do you need several years worth of tax returns? *</label>
+                    <select id="need_multiple_years" name="need_multiple_years" required>
+                        <option value="">Select Option</option>
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                    <div class="error" id="need_multiple_years_error"></div>
+                </div>
+                
+                <div class="conditional-section" id="years_needed_section">
+                    <div class="form-group">
+                        <label for="years_needed">How many years worth of tax returns do you need? It'll be following years after initial year *</label>
+                        <input type="number" id="years_needed" name="years_needed" min="1">
+                        <div class="error" id="years_needed_error"></div>
+                    </div>
+                    
+                    <div class="conditional-section" id="future_years_section">
+                        <h3>Future Years Details</h3>
+                        <div id="future_years_container">
+                            <!-- Future years forms will be added here by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="conditional-section" id="simplified_option_section">
+                        <h3>Simplified Option</h3>
+                        
+                        <div class="form-group">
+                            <label for="how_income_change_this_year">Has income been higher or lower at this tax year? *</label>
+                            <select id="how_income_change_this_year" name="how_income_change_this_year">
+                                <option value="">Select Option</option>
+                                <option value="HIGHER">HIGHER</option>
+                                <option value="LOWER">LOWER</option>
+                            </select>
+                            <div class="error" id="how_income_change_this_year_error"></div>
+                        </div>
+                        
+                        <div class="conditional-section" id="percents_higher_section">
+                            <div class="form-group">
+                                <label for="percents_higher">How many % income (gross receipts) has been higher? *</label>
+                                <input type="number" id="percents_higher" name="percents_higher" min="1" max="300">
+                                <div class="error" id="percents_higher_error"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="conditional-section" id="percents_lower_section">
+                            <div class="form-group">
+                                <label for="percents_lower">How many % income (gross receipts) has been lower? *</label>
+                                <input type="number" id="percents_lower" name="percents_lower" min="1" max="95">
+                                <div class="error" id="percents_lower_error"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn">Submit Tax Return</button>
+        </form>
+    </div>
+
+    <script>
+        // API Host - можно легко изменить при развертывании
+        const API_HOST = 'http://127.0.0.1:8000';
+        
+        // Глобальные переменные
+        let ownerCount = 0;
+        let officerCount = 0;
+        let futureYearCount = 0;
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Заполнение года подачи
+            populateFilingYear();
+            
+            // Добавление обработчиков событий
+            setupEventListeners();
+            
+            // Добавление первой строки владельцев
+            addOwnerRow();
+            
+            // Добавление первой строки офицеров
+            addOfficerRow();
+            
+            // Обновление расчета цены
+            updatePriceCalculation();
+        });
+        
+        // Заполнение выпадающего списка годов
+        function populateFilingYear() {
+            const select = document.getElementById('filing_year');
+            const currentYear = new Date().getFullYear();
+            
+            // Добавляем годы от текущего до 5 лет назад
+            for (let year = currentYear; year >= currentYear - 5; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                select.appendChild(option);
+            }
+        }
+        
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Обработчики для условных секций
+            document.getElementById('sells_products_or_services').addEventListener('change', toggleProductsPercentage);
+            document.getElementById('refund_or_tax_due').addEventListener('change', toggleRefundTaxDue);
+            document.getElementById('total_assets').addEventListener('input', showTotalAssetsWarning);
+            document.getElementById('prepared_by').addEventListener('change', toggleCPAPreparer);
+            document.getElementById('use_own_cpa').addEventListener('change', toggleOwnCPADetails);
+            document.getElementById('need_multiple_years').addEventListener('change', toggleYearsNeeded);
+            document.getElementById('how_income_change_this_year').addEventListener('change', toggleIncomeChange);
+            
+            // Обработчики для добавления строк в таблицы
+            document.getElementById('add_owner_btn').addEventListener('click', addOwnerRow);
+            document.getElementById('add_officer_btn').addEventListener('click', addOfficerRow);
+            
+            // Обработчик отправки формы
+            document.getElementById('taxForm').addEventListener('submit', handleFormSubmit);
+            
+            // Обработчики для валидации взаимоисключающих полей
+            document.getElementById('returns_allowances').addEventListener('input', validateExclusiveFields);
+            document.getElementById('cost_of_goods_sold').addEventListener('input', validateExclusiveFields);
+            document.getElementById('gross_receipts_sales').addEventListener('input', validateExclusiveFields);
+            
+            // Обработчики для обновления расчета цены
+            document.getElementById('need_multiple_years').addEventListener('change', updatePriceCalculation);
+            document.getElementById('years_needed').addEventListener('input', updatePriceCalculation);
+            document.getElementById('years_needed').addEventListener('input', function() {
+                updateFutureYearsForms();
+                updatePriceCalculation();
+            });
+            document.getElementById('filing_year').addEventListener('input', function() {
+                updateFutureYearsForms();
+            });
+            document.addEventListener('input', function(e) {
+                // Проверяем, если поле future year очищается
+                if (e.target.name && e.target.name.startsWith('future_') && !e.target.value) {
+                    const yearIndex = getYearIndexFromElement(e.target);
+                    if (yearIndex !== -1) {
+                        // Небольшая задержка чтобы дать время другим обработчикам
+                        setTimeout(() => checkSimplifiedOptionVisibility(yearIndex), 100);
+                    }
+                }
+            });
+        }
+        
+        // Вспомогательная функция для получения индекса года из элемента
+        function getYearIndexFromElement(element) {
+            const id = element.id;
+            const match = id.match(/future_.*_(\d+)$/);
+            return match ? parseInt(match[1]) : -1;
+        }
+        
+        // Функции для переключения видимости условных секций
+        function toggleProductsPercentage() {
+            const section = document.getElementById('products_percentage_section');
+            const value = document.getElementById('sells_products_or_services').value;
+            
+            if (value === 'Both') {
+                section.style.display = 'block';
+                document.getElementById('products_percentage').required = true;
+            } else {
+                section.style.display = 'none';
+                document.getElementById('products_percentage').required = false;
+            }
+        }
+        
+        function toggleRefundTaxDue() {
+            const refundSection = document.getElementById('refund_amount_section');
+            const taxDueSection = document.getElementById('tax_due_amount_section');
+            const value = document.getElementById('refund_or_tax_due').value;
+            
+            if (value === 'TAX_REFUND') {
+                refundSection.style.display = 'block';
+                taxDueSection.style.display = 'none';
+                document.getElementById('refund_amount').required = true;
+                document.getElementById('tax_due_amount').required = false;
+            } else if (value === 'TAX_DUE') {
+                refundSection.style.display = 'none';
+                taxDueSection.style.display = 'block';
+                document.getElementById('refund_amount').required = false;
+                document.getElementById('tax_due_amount').required = true;
+            } else {
+                refundSection.style.display = 'none';
+                taxDueSection.style.display = 'none';
+                document.getElementById('refund_amount').required = false;
+                document.getElementById('tax_due_amount').required = false;
+            }
+        }
+        
+        function showTotalAssetsWarning() {
+            const warning = document.getElementById('total_assets_warning');
+            const value = parseFloat(document.getElementById('total_assets').value) || 0;
+            
+            if (value > 250000) {
+                warning.style.display = 'block';
+            } else {
+                warning.style.display = 'none';
+            }
+        }
+        
+        function toggleCPAPreparer() {
+            const section = document.getElementById('cpa_preparer_section');
+            const value = document.getElementById('prepared_by').value;
+            
+            if (value === 'CPA/Paid Preparer') {
+                section.style.display = 'block';
+                document.getElementById('use_own_cpa').required = true;
+            } else {
+                section.style.display = 'none';
+                document.getElementById('use_own_cpa').required = false;
+                document.getElementById('own_cpa_details_section').style.display = 'none';
+            }
+        }
+        
+        function toggleOwnCPADetails() {
+            const section = document.getElementById('own_cpa_details_section');
+            const value = document.getElementById('use_own_cpa').value;
+            
+            if (value === 'true') {
+                section.style.display = 'block';
+                // Установка обязательных полей
+                const requiredFields = ['preparer_name', 'preparer_signature', 'firm_name', 'firm_address', 'firm_ein', 'ptin', 'firm_phone'];
+                requiredFields.forEach(field => {
+                    document.getElementById(field).required = true;
+                });
+            } else {
+                section.style.display = 'none';
+                // Снятие обязательных полей
+                const requiredFields = ['preparer_name', 'preparer_signature', 'firm_name', 'firm_address', 'firm_ein', 'ptin', 'firm_phone'];
+                requiredFields.forEach(field => {
+                    document.getElementById(field).required = false;
+                });
+            }
+        }
+        
+        function toggleYearsNeeded() {
+            const section = document.getElementById('years_needed_section');
+            const value = document.getElementById('need_multiple_years').value;
+            
+            if (value === 'true') {
+                section.style.display = 'block';
+                document.getElementById('years_needed').required = true;
+                // Автоматически обновляем формы при показе
+                updateFutureYearsForms();
+            } else {
+                section.style.display = 'none';
+                document.getElementById('years_needed').required = false;
+                document.getElementById('future_years_section').style.display = 'none';
+                document.getElementById('simplified_option_section').style.display = 'none';
+                
+                // Снимаем required с полей future years при скрытии секции
+                removeFutureYearsRequired();
+            }
+        }
+
+        // Функция для снятия required с полей future years
+        function removeFutureYearsRequired() {
+            const futureInputs = document.querySelectorAll('#future_years_container input, #future_years_container select');
+            futureInputs.forEach(input => {
+                input.required = false;
+            });
+        }
+        
+        function toggleIncomeChange() {
+            const higherSection = document.getElementById('percents_higher_section');
+            const lowerSection = document.getElementById('percents_lower_section');
+            const value = document.getElementById('how_income_change_this_year').value;
+            
+            if (value === 'HIGHER') {
+                higherSection.style.display = 'block';
+                lowerSection.style.display = 'none';
+                document.getElementById('percents_higher').required = true;
+                document.getElementById('percents_lower').required = false;
+            } else if (value === 'LOWER') {
+                higherSection.style.display = 'none';
+                lowerSection.style.display = 'block';
+                document.getElementById('percents_higher').required = false;
+                document.getElementById('percents_lower').required = true;
+            } else {
+                higherSection.style.display = 'none';
+                lowerSection.style.display = 'none';
+                document.getElementById('percents_higher').required = false;
+                document.getElementById('percents_lower').required = false;
+            }
+        }
+        
+        function addOwnerRow() {
+            if (ownerCount >= 4) {
+                alert('Maximum 4 owners allowed');
+                return;
+            }
+            
+            const tbody = document.getElementById('owners_table').getElementsByTagName('tbody')[0];
+            const row = tbody.insertRow();
+            row.className = 'owner-row';
+            
+            // Name
+            const nameCell = row.insertCell(0);
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = 'owner_name[]';
+            nameInput.required = true;
+            nameCell.appendChild(nameInput);
+            
+            // SSN
+            const ssnCell = row.insertCell(1);
+            const ssnInput = document.createElement('input');
+            ssnInput.type = 'text';
+            ssnInput.name = 'owner_ssn[]';
+            ssnInput.pattern = '^\\d{3}-\\d{2}-\\d{4}$|^\\d{9}$';
+            ssnInput.required = true;
+            ssnCell.appendChild(ssnInput);
+            
+            // % Ownership
+            const ownershipCell = row.insertCell(2);
+            const ownershipInput = document.createElement('input');
+            ownershipInput.type = 'number';
+            ownershipInput.name = 'owner_ownership[]';
+            ownershipInput.min = '0.01';
+            ownershipInput.max = '100';
+            ownershipInput.step = '0.01';
+            ownershipInput.required = true;
+            ownershipCell.appendChild(ownershipInput);
+            
+            // Generate Personal Tax Return
+            const generateCell = row.insertCell(3);
+            const generateCheckbox = document.createElement('input');
+            generateCheckbox.type = 'checkbox';
+            generateCheckbox.name = 'owner_generate_personal_tax_return[]';
+            generateCheckbox.value = 'true';
+            generateCheckbox.addEventListener('change', function() {
+                updatePersonalTaxReturns();
+                updatePriceCalculation();
+            });
+            generateCell.appendChild(generateCheckbox);
+            
+            // Actions
+            const actionsCell = row.insertCell(4);
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-row-btn';
+            removeBtn.textContent = 'Remove';
+            removeBtn.addEventListener('click', function() {
+                tbody.removeChild(row);
+                ownerCount--;
+                updatePersonalTaxReturns();
+                updatePriceCalculation();
+            });
+            actionsCell.appendChild(removeBtn);
+            
+            ownerCount++;
+            
+            // Убедимся, что всегда есть хотя бы один владелец
+            if (ownerCount === 1) {
+                document.getElementById('add_owner_btn').style.display = 'block';
+            }
+        }
+        
+        function addOfficerRow() {
+            const tbody = document.getElementById('officers_table').getElementsByTagName('tbody')[0];
+            const row = tbody.insertRow();
+            row.className = 'officer-row';
+            
+            // Name
+            const nameCell = row.insertCell(0);
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = 'officer_name[]';
+            nameInput.required = true;
+            nameCell.appendChild(nameInput);
+            
+            // SSN
+            const ssnCell = row.insertCell(1);
+            const ssnInput = document.createElement('input');
+            ssnInput.type = 'text';
+            ssnInput.name = 'officer_ssn[]';
+            ssnInput.pattern = '^\\d{3}-\\d{2}-\\d{4}$|^\\d{9}$';
+            ssnInput.required = true;
+            ssnCell.appendChild(ssnInput);
+            
+            // % Time
+            const timeCell = row.insertCell(2);
+            const timeInput = document.createElement('input');
+            timeInput.type = 'number';
+            timeInput.name = 'officer_time[]';
+            timeInput.min = '0.01';
+            timeInput.max = '100';
+            timeInput.step = '0.01';
+            timeInput.required = true;
+            timeCell.appendChild(timeInput);
+            
+            // % Ownership
+            const ownershipCell = row.insertCell(3);
+            const ownershipInput = document.createElement('input');
+            ownershipInput.type = 'number';
+            ownershipInput.name = 'officer_ownership[]';
+            ownershipInput.min = '0.01';
+            ownershipInput.max = '100';
+            ownershipInput.step = '0.01';
+            ownershipInput.required = true;
+            ownershipCell.appendChild(ownershipInput);
+            
+            // % of Total Compensation
+            const compensationCell = row.insertCell(4);
+            const compensationInput = document.createElement('input');
+            compensationInput.type = 'number';
+            compensationInput.name = 'officer_compensation[]';
+            compensationInput.min = '0.01';
+            compensationInput.max = '100';
+            compensationInput.step = '0.01';
+            compensationInput.required = true;
+            compensationCell.appendChild(compensationInput);
+            
+            // Actions
+            const actionsCell = row.insertCell(5);
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-row-btn';
+            removeBtn.textContent = 'Remove';
+            removeBtn.addEventListener('click', function() {
+                tbody.removeChild(row);
+                officerCount--;
+            });
+            actionsCell.appendChild(removeBtn);
+            
+            officerCount++;
+        }
+        
+        // Обновление таблицы офицеров на основе владельцев с персональными декларациями
+        function updateOfficersTable() {
+            const tbody = document.getElementById('officers_table').getElementsByTagName('tbody')[0];
+            
+            // Сохраняем существующие ручные записи
+            const manualRows = [];
+            const existingRows = Array.from(tbody.rows);
+            
+            existingRows.forEach(row => {
+                const nameInput = row.cells[0].querySelector('input');
+                if (nameInput && !nameInput.readOnly) {
+                    manualRows.push({
+                        name: nameInput.value,
+                        ssn: row.cells[1].querySelector('input').value,
+                        time: row.cells[2].querySelector('input').value,
+                        ownership: row.cells[3].querySelector('input').value,
+                        compensation: row.cells[4].querySelector('input').value
+                    });
+                }
+            });
+            
+            // Очищаем таблицу
+            tbody.innerHTML = '';
+            officerCount = 0;
+            
+            // Находим всех владельцев с generate_personal_tax_return = true
+            const ownerCheckboxes = document.querySelectorAll('input[name="owner_generate_personal_tax_return[]"]');
+            const ownerNames = document.getElementsByName('owner_name[]');
+            const ownerSsns = document.getElementsByName('owner_ssn[]');
+            const ownerOwnerships = document.getElementsByName('owner_ownership[]');
+            
+            // Добавляем автоматических офицеров из владельцев
+            ownerCheckboxes.forEach((checkbox, index) => {
+                if (checkbox.checked && officerCount < 4) {
+                    addOfficerRow(true, ownerNames[index].value, ownerSsns[index].value, ownerOwnerships[index].value);
+                }
+            });
+            
+            // Восстанавливаем ручные записи
+            manualRows.forEach(row => {
+                if (officerCount < 4) {
+                    addOfficerRow(false, row.name, row.ssn, row.ownership, row.time, row.compensation);
+                }
+            });
+            
+            // Показываем/скрываем секцию офицеров
+            const officersSection = document.querySelector('#officers_table').closest('.section');
+            officersSection.style.display = officerCount > 0 ? 'block' : 'none';
+        }
+
+        // Валидация процентов офицеров
+        function validateOfficersPercentages() {
+            const timeInputs = document.querySelectorAll('input[name="officer_time[]"]');
+            const compensationInputs = document.querySelectorAll('input[name="officer_compensation[]"]');
+            
+            let totalTime = 0;
+            let totalCompensation = 0;
+            
+            timeInputs.forEach(input => {
+                totalTime += parseFloat(input.value) || 0;
+            });
+            
+            compensationInputs.forEach(input => {
+                totalCompensation += parseFloat(input.value) || 0;
+            });
+            
+            // Можно добавить визуальную индикацию если проценты не сходятся
+            if (Math.abs(totalTime - 100) > 0.01) {
+                console.warn(`Total time percentage: ${totalTime}% (should be 100%)`);
+            }
+            
+            if (Math.abs(totalCompensation - 100) > 0.01) {
+                console.warn(`Total compensation percentage: ${totalCompensation}% (should be 100%)`);
+            }
+        }
+
+        // Переключение refund/tax due для future years
+        function toggleFutureYearRefundTaxDue(yearIndex) {
+            const refundSection = document.getElementById(`future_refund_amount_section_${yearIndex}`);
+            const taxDueSection = document.getElementById(`future_tax_due_amount_section_${yearIndex}`);
+            const value = document.getElementById(`future_refund_or_tax_due_${yearIndex}`).value;
+            
+            // Получаем текущее состояние required из детальной секции
+            const detailedSection = document.querySelector(`#future_years_container > div:nth-child(${yearIndex + 1}) .detailed-fields`);
+            const isDetailedMode = detailedSection && Array.from(detailedSection.querySelectorAll('input, select')).some(input => input.value);
+            
+            if (value === 'TAX_REFUND') {
+                refundSection.style.display = 'block';
+                taxDueSection.style.display = 'none';
+                document.getElementById(`future_refund_amount_${yearIndex}`).required = isDetailedMode;
+                document.getElementById(`future_tax_due_amount_${yearIndex}`).required = false;
+            } else if (value === 'TAX_DUE') {
+                refundSection.style.display = 'none';
+                taxDueSection.style.display = 'block';
+                document.getElementById(`future_refund_amount_${yearIndex}`).required = false;
+                document.getElementById(`future_tax_due_amount_${yearIndex}`).required = isDetailedMode;
+            } else {
+                refundSection.style.display = 'none';
+                taxDueSection.style.display = 'none';
+                document.getElementById(`future_refund_amount_${yearIndex}`).required = false;
+                document.getElementById(`future_tax_due_amount_${yearIndex}`).required = false;
+            }
+        }
+
+        // Обновленная функция добавления офицера
+        function addOfficerRow(isAutoAdded = false, name = '', ssn = '', ownership = '', time = '', compensation = '') {
+            if (officerCount >= 4) {
+                alert('Maximum 4 officers allowed');
+                return;
+            }
+            
+            const tbody = document.getElementById('officers_table').getElementsByTagName('tbody')[0];
+            const row = tbody.insertRow();
+            row.className = 'officer-row';
+            
+            // Name
+            const nameCell = row.insertCell(0);
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = 'officer_name[]';
+            nameInput.value = name;
+            nameInput.readOnly = isAutoAdded;
+            nameInput.required = true;
+            nameCell.appendChild(nameInput);
+            
+            // SSN
+            const ssnCell = row.insertCell(1);
+            const ssnInput = document.createElement('input');
+            ssnInput.type = 'text';
+            ssnInput.name = 'officer_ssn[]';
+            ssnInput.value = ssn;
+            ssnInput.pattern = '^\\d{3}-\\d{2}-\\d{4}$|^\\d{9}$';
+            ssnInput.readOnly = isAutoAdded;
+            ssnInput.required = true;
+            ssnCell.appendChild(ssnInput);
+            
+            // % Time
+            const timeCell = row.insertCell(2);
+            const timeInput = document.createElement('input');
+            timeInput.type = 'number';
+            timeInput.name = 'officer_time[]';
+            timeInput.value = time || '';
+            timeInput.min = '0.01';
+            timeInput.max = '100';
+            timeInput.step = '0.01';
+            timeInput.required = true;
+            timeCell.appendChild(timeInput);
+            
+            // % Ownership
+            const ownershipCell = row.insertCell(3);
+            const ownershipInput = document.createElement('input');
+            ownershipInput.type = 'number';
+            ownershipInput.name = 'officer_ownership[]';
+            ownershipInput.value = ownership || '';
+            ownershipInput.min = '0.01';
+            ownershipInput.max = '100';
+            ownershipInput.step = '0.01';
+            ownershipInput.readOnly = isAutoAdded;
+            ownershipInput.required = true;
+            ownershipCell.appendChild(ownershipInput);
+            
+            // % of Total Compensation
+            const compensationCell = row.insertCell(4);
+            const compensationInput = document.createElement('input');
+            compensationInput.type = 'number';
+            compensationInput.name = 'officer_compensation[]';
+            compensationInput.value = compensation || '';
+            compensationInput.min = '0.01';
+            compensationInput.max = '100';
+            compensationInput.step = '0.01';
+            compensationInput.required = true;
+            compensationCell.appendChild(compensationInput);
+            
+            // Actions
+            const actionsCell = row.insertCell(5);
+            <!-- if (isAutoAdded) { -->
+                <!-- actionsCell.innerHTML = 'Auto-added'; -->
+            <!-- } else { -->
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'remove-row-btn';
+                removeBtn.textContent = 'Remove';
+                removeBtn.addEventListener('click', function() {
+                    tbody.removeChild(row);
+                    officerCount--;
+                    // Обновляем валидацию процентов после удаления
+                    validateOfficersPercentages();
+                });
+                actionsCell.appendChild(removeBtn);
+            <!-- } -->
+            
+            officerCount++;
+            
+            // Добавляем валидацию при изменении полей
+            [timeInput, compensationInput].forEach(input => {
+                input.addEventListener('input', validateOfficersPercentages);
+            });
+        }
+        
+        // Обновление форм персональных налоговых деклараций
+        function updatePersonalTaxReturns() {
+            const container = document.getElementById('personal_tax_returns_container');
+            const section = document.getElementById('personal_tax_returns_section');
+            
+            // Очистка контейнера
+            container.innerHTML = '';
+            
+            // Проверка, есть ли владельцы с generate_personal_tax_return = true
+            let hasPersonalReturns = false;
+            const checkboxes = document.querySelectorAll('input[name="owner_generate_personal_tax_return[]"]');
+            
+            checkboxes.forEach((checkbox, index) => {
+                if (checkbox.checked) {
+                    hasPersonalReturns = true;
+                    
+                    // Создание формы для персональной налоговой декларации
+                    const personalReturnForm = document.createElement('div');
+                    personalReturnForm.className = 'section';
+                    personalReturnForm.innerHTML = `
+                        <h4>Personal Tax Return for Owner ${index + 1}</h4>
+                        <div class="form-group">
+                            <label for="personal_filing_status_${index}">Marital Status *</label>
+                            <select id="personal_filing_status_${index}" name="personal_filing_status[]" required>
+                                <option value="">Select Status</option>
+                                <option value="Single">Single</option>
+                                <option value="Married Filing Jointly">Married Filing Jointly</option>
+                            </select>
+                            <div class="error" id="personal_filing_status_${index}_error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="personal_occupation_${index}">Position *</label>
+                            <input type="text" id="personal_occupation_${index}" name="personal_occupation[]" required>
+                            <div class="error" id="personal_occupation_${index}_error"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="personal_signature_${index}">Signature (PNG) *</label>
+                            <input type="file" id="personal_signature_${index}" name="personal_signature[]" accept=".png" required>
+                            <div class="error" id="personal_signature_${index}_error"></div>
+                        </div>
+                        
+                        <h5>Dependents</h5>
+                        <div class="table-container">
+                            <table id="dependents_table_${index}">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>SSN</th>
+                                        <th>Relationship</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Rows will be added by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="add-dependent-btn" data-owner-index="${index}">Add Dependent</button>
+                        
+                        <h5>Financial Information</h5>
+                        <div class="form-group">
+                            <label for="personal_refund_or_tax_due_${index}">Refund or Tax Due *</label>
+                            <select id="personal_refund_or_tax_due_${index}" name="personal_refund_or_tax_due[]" required>
+                                <option value="">Select Option</option>
+                                <option value="TAX_REFUND">Refund Amount</option>
+                                <option value="TAX_DUE">Tax Due Amount</option>
+                            </select>
+                            <div class="error" id="personal_refund_or_tax_due_${index}_error"></div>
+                        </div>
+                        
+                        <div class="conditional-section" id="personal_refund_amount_section_${index}">
+                            <div class="form-group">
+                                <label for="personal_refund_amount_${index}">Refund Amount *</label>
+                                <input type="number" id="personal_refund_amount_${index}" name="personal_refund_amount[]" min="0" step="0.01">
+                                <div class="error" id="personal_refund_amount_${index}_error"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="conditional-section" id="personal_tax_due_amount_section_${index}">
+                            <div class="form-group">
+                                <label for="personal_tax_due_amount_${index}">Tax Due Amount *</label>
+                                <input type="number" id="personal_tax_due_amount_${index}" name="personal_tax_due_amount[]" min="0" step="0.01">
+                                <div class="error" id="personal_tax_due_amount_${index}_error"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="personal_account_number_${index}">Account Number *</label>
+                            <input type="text" id="personal_account_number_${index}" name="personal_account_number[]" pattern="^\\d+$" required>
+                            <div class="error" id="personal_account_number_${index}_error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="personal_routing_number_${index}">Routing Number *</label>
+                            <input type="text" id="personal_routing_number_${index}" name="personal_routing_number[]" pattern="^\\d{9}$" required>
+                            <div class="error" id="personal_routing_number_${index}_error"></div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(personalReturnForm);
+                    
+                    // Добавляем обработчики для условных полей
+                    const refundTaxDueSelect = document.getElementById(`personal_refund_or_tax_due_${index}`);
+                    refundTaxDueSelect.addEventListener('change', function() {
+                        togglePersonalRefundTaxDue(index);
+                    });
+                    
+                    // Добавляем первую строку для dependents
+                    addDependentRow(index);
+                }
+            });
+            
+            // Показать или скрыть секцию
+            section.style.display = hasPersonalReturns ? 'block' : 'none';
+            
+            // Обновляем таблицу офицеров при изменении персональных деклараций
+            updateOfficersTable();
+        }
+
+        // Функция для переключения персональных refund/tax due полей
+        function togglePersonalRefundTaxDue(ownerIndex) {
+            const refundSection = document.getElementById(`personal_refund_amount_section_${ownerIndex}`);
+            const taxDueSection = document.getElementById(`personal_tax_due_amount_section_${ownerIndex}`);
+            const value = document.getElementById(`personal_refund_or_tax_due_${ownerIndex}`).value;
+            
+            if (value === 'TAX_REFUND') {
+                refundSection.style.display = 'block';
+                taxDueSection.style.display = 'none';
+                document.getElementById(`personal_refund_amount_${ownerIndex}`).required = true;
+                document.getElementById(`personal_tax_due_amount_${ownerIndex}`).required = false;
+            } else if (value === 'TAX_DUE') {
+                refundSection.style.display = 'none';
+                taxDueSection.style.display = 'block';
+                document.getElementById(`personal_refund_amount_${ownerIndex}`).required = false;
+                document.getElementById(`personal_tax_due_amount_${ownerIndex}`).required = true;
+            } else {
+                refundSection.style.display = 'none';
+                taxDueSection.style.display = 'none';
+                document.getElementById(`personal_refund_amount_${ownerIndex}`).required = false;
+                document.getElementById(`personal_tax_due_amount_${ownerIndex}`).required = false;
+            }
+        }
+
+        // Функция для добавления строки dependent
+        function addDependentRow(ownerIndex) {
+            const tbody = document.getElementById(`dependents_table_${ownerIndex}`).getElementsByTagName('tbody')[0];
+            const row = tbody.insertRow();
+            
+            // Name
+            const nameCell = row.insertCell(0);
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.name = `dependent_name_${ownerIndex}[]`;
+            nameCell.appendChild(nameInput);
+            
+            // SSN
+            const ssnCell = row.insertCell(1);
+            const ssnInput = document.createElement('input');
+            ssnInput.type = 'text';
+            ssnInput.name = `dependent_ssn_${ownerIndex}[]`;
+            ssnInput.pattern = '^\\d{3}-\\d{2}-\\d{4}$|^\\d{9}$';
+            ssnCell.appendChild(ssnInput);
+            
+            // Relationship
+            const relationshipCell = row.insertCell(2);
+            const relationshipInput = document.createElement('input');
+            relationshipInput.type = 'text';
+            relationshipInput.name = `dependent_relationship_${ownerIndex}[]`;
+            relationshipCell.appendChild(relationshipInput);
+            
+            // Actions
+            const actionsCell = row.insertCell(3);
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'remove-row-btn';
+            removeBtn.textContent = 'Remove';
+            removeBtn.addEventListener('click', function() {
+                tbody.removeChild(row);
+            });
+            actionsCell.appendChild(removeBtn);
+        }
+        
+        // Обновление форм для будущих лет
+        function updateFutureYearsForms() {
+            const container = document.getElementById('future_years_container');
+            const yearsSection = document.getElementById('future_years_section');
+            const simplifiedSection = document.getElementById('simplified_option_section');
+            const yearsNeeded = parseInt(document.getElementById('years_needed').value) || 0;
+            const filingYear = parseInt(document.getElementById('filing_year').value);
+            
+            // Очистка контейнера
+            container.innerHTML = '';
+            
+            if (yearsNeeded > 0) {
+                yearsSection.style.display = 'block';
+                
+                // Создание форм для каждого будущего года
+                for (let i = 0; i < yearsNeeded; i++) {
+                    const year = filingYear + i + 1;
+                    const yearForm = document.createElement('div');
+                    yearForm.className = 'section';
+                    yearForm.innerHTML = `
+                        <h4>Year ${year}</h4>
+                        <p>You can skip this and go directly to next section</p>
+                        
+                        <!-- Детальные поля -->
+                        <div class="detailed-fields">
+                            <div class="form-group">
+                                <label for="future_gross_receipts_${i}">Gross Receipts / Sales (Optional)</label>
+                                <input type="number" id="future_gross_receipts_${i}" name="future_gross_receipts[]" min="0" step="0.01">
+                                <div class="error" id="future_gross_receipts_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_returns_allowances_${i}">Returns & Allowances (Optional)</label>
+                                <input type="number" id="future_returns_allowances_${i}" name="future_returns_allowances[]" min="0" step="0.01">
+                                <div class="error" id="future_returns_allowances_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_cost_of_goods_sold_${i}">Cost of Goods Sold (Optional)</label>
+                                <input type="number" id="future_cost_of_goods_sold_${i}" name="future_cost_of_goods_sold[]" min="0" step="0.01">
+                                <div class="error" id="future_cost_of_goods_sold_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Gross Income (Calculated)</label>
+                                <input type="number" id="future_gross_income_${i}" readonly>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_gross_rents_${i}">Gross Rents (Optional)</label>
+                                <input type="number" id="future_gross_rents_${i}" name="future_gross_rents[]" min="0" step="0.01">
+                                <div class="error" id="future_gross_rents_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_has_capital_gain_income_${i}">Did company have Capital Gain Income?</label>
+                                <select id="future_has_capital_gain_income_${i}" name="future_has_capital_gain_income[]">
+                                    <option value="">Select Option</option>
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
+                                </select>
+                                <div class="error" id="future_has_capital_gain_income_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_compensation_of_officers_${i}">Compensation of Officers (Total for all officers)</label>
+                                <input type="number" id="future_compensation_of_officers_${i}" name="future_compensation_of_officers[]" min="0" step="0.01">
+                                <div class="error" id="future_compensation_of_officers_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_has_employees_${i}">Does your company have employees?</label>
+                                <select id="future_has_employees_${i}" name="future_has_employees[]">
+                                    <option value="">Select Option</option>
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
+                                </select>
+                                <div class="error" id="future_has_employees_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_salaries_wages_${i}">Salaries & Wages (Optional)</label>
+                                <input type="number" id="future_salaries_wages_${i}" name="future_salaries_wages[]" min="0" step="0.01">
+                                <div class="error" id="future_salaries_wages_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_taxes_licenses_${i}">Taxes & Licenses (Optional)</label>
+                                <input type="number" id="future_taxes_licenses_${i}" name="future_taxes_licenses[]" min="0" step="0.01">
+                                <div class="error" id="future_taxes_licenses_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_repairs_maintenance_${i}">Repairs and maintenance (Optional)</label>
+                                <input type="number" id="future_repairs_maintenance_${i}" name="future_repairs_maintenance[]" min="0" step="0.01">
+                                <div class="error" id="future_repairs_maintenance_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_refund_or_tax_due_${i}">Refund or Tax Due</label>
+                                <select id="future_refund_or_tax_due_${i}" name="future_refund_or_tax_due[]">
+                                    <option value="">Select Option</option>
+                                    <option value="TAX_REFUND">Refund Amount</option>
+                                    <option value="TAX_DUE">Tax Due Amount</option>
+                                </select>
+                                <div class="error" id="future_refund_or_tax_due_${i}_error"></div>
+                            </div>
+                            
+                            <div class="conditional-section" id="future_refund_amount_section_${i}">
+                                <div class="form-group">
+                                    <label for="future_refund_amount_${i}">Refund Amount</label>
+                                    <input type="number" id="future_refund_amount_${i}" name="future_refund_amount[]" min="0" step="0.01">
+                                    <div class="error" id="future_refund_amount_${i}_error"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="conditional-section" id="future_tax_due_amount_section_${i}">
+                                <div class="form-group">
+                                    <label for="future_tax_due_amount_${i}">Tax Due Amount</label>
+                                    <input type="number" id="future_tax_due_amount_${i}" name="future_tax_due_amount[]" min="0" step="0.01">
+                                    <div class="error" id="future_tax_due_amount_${i}_error"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_account_number_${i}">Account Number</label>
+                                <input type="text" id="future_account_number_${i}" name="future_account_number[]" pattern="^\\d+$">
+                                <div class="error" id="future_account_number_${i}_error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="future_routing_number_${i}">Routing Number</label>
+                                <input type="text" id="future_routing_number_${i}" name="future_routing_number[]" pattern="^\\d{9}$">
+                                <div class="error" id="future_routing_number_${i}_error"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Simplified Option для каждого года -->
+                        <div class="simplified-option-section" style="display: block;">
+                            <h5>Simplified Option for Year ${year}</h5>
+                            <div class="form-group">
+                                <label for="future_income_change_${i}">Has income been higher or lower at this tax year?</label>
+                                <select id="future_income_change_${i}" name="future_income_change[]">
+                                    <option value="">Select Option</option>
+                                    <option value="HIGHER">HIGHER</option>
+                                    <option value="LOWER">LOWER</option>
+                                </select>
+                                <div class="error" id="future_income_change_${i}_error"></div>
+                            </div>
+                            
+                            <div class="conditional-section" id="future_percents_higher_section_${i}" style="display: none;">
+                                <div class="form-group">
+                                    <label for="future_percents_higher_${i}">How many % income (gross receipts) has been higher?</label>
+                                    <input type="number" id="future_percents_higher_${i}" name="future_percents_higher[]" min="1" max="300">
+                                    <div class="error" id="future_percents_higher_${i}_error"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="conditional-section" id="future_percents_lower_section_${i}" style="display: none;">
+                                <div class="form-group">
+                                    <label for="future_percents_lower_${i}">How many % income (gross receipts) has been lower?</label>
+                                    <input type="number" id="future_percents_lower_${i}" name="future_percents_lower[]" min="1" max="95">
+                                    <div class="error" id="future_percents_lower_${i}_error"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(yearForm);
+                    
+                    // Добавляем обработчики для взаимоисключающих полей
+                    const grossReceiptsInput = document.getElementById(`future_gross_receipts_${i}`);
+                    const returnsAllowancesInput = document.getElementById(`future_returns_allowances_${i}`);
+                    const costOfGoodsSoldInput = document.getElementById(`future_cost_of_goods_sold_${i}`);
+                    
+                    [grossReceiptsInput, returnsAllowancesInput, costOfGoodsSoldInput].forEach(input => {
+                        input.addEventListener('input', function() {
+                            validateFutureYearExclusiveFields(i);
+                            calculateGrossIncome(i);
+                            checkSimplifiedOptionVisibility(i);
+                        });
+                    });
+                    
+                    // Добавляем обработчики для всех полей детальной секции
+                    const detailedInputs = yearForm.querySelectorAll('.detailed-fields input, .detailed-fields select');
+                    detailedInputs.forEach(input => {
+                        input.addEventListener('input', function() {
+                            checkSimplifiedOptionVisibility(i);
+                        });
+                    });
+                    
+                    // Добавляем обработчик для refund/tax due
+                    const refundTaxDueSelect = document.getElementById(`future_refund_or_tax_due_${i}`);
+                    refundTaxDueSelect.addEventListener('change', function() {
+                        toggleFutureYearRefundTaxDue(i);
+                        checkSimplifiedOptionVisibility(i);
+                    });
+                    
+                    // Добавляем обработчик для simplified option
+                    const incomeChangeSelect = document.getElementById(`future_income_change_${i}`);
+                    incomeChangeSelect.addEventListener('change', function() {
+                        toggleFutureYearIncomeChange(i);
+                        checkSimplifiedOptionVisibility(i);
+                    });
+                    
+                    // Инициализируем видимость simplified option
+                    checkSimplifiedOptionVisibility(i);
+                }
+                
+            } else {
+                yearsSection.style.display = 'none';
+                simplifiedSection.style.display = 'none';
+            }
+        }
+
+        // Функция для переключения simplified option для конкретного года
+        function toggleFutureYearIncomeChange(yearIndex) {
+            const higherSection = document.getElementById(`future_percents_higher_section_${yearIndex}`);
+            const lowerSection = document.getElementById(`future_percents_lower_section_${yearIndex}`);
+            const value = document.getElementById(`future_income_change_${yearIndex}`).value;
+            
+            if (value === 'HIGHER') {
+                higherSection.style.display = 'block';
+                lowerSection.style.display = 'none';
+            } else if (value === 'LOWER') {
+                higherSection.style.display = 'none';
+                lowerSection.style.display = 'block';
+            } else {
+                higherSection.style.display = 'none';
+                lowerSection.style.display = 'none';
+            }
+        }
+
+        // Проверка видимости simplified option для конкретного года
+        function checkSimplifiedOptionVisibility(yearIndex) {
+            const yearForm = document.querySelector(`#future_years_container > div:nth-child(${yearIndex + 1})`);
+            if (!yearForm) return;
+            
+            const detailedSection = yearForm.querySelector('.detailed-fields');
+            const simplifiedSection = yearForm.querySelector('.simplified-option-section');
+            
+            if (!detailedSection || !simplifiedSection) return;
+            
+            let anyDetailedFieldFilled = false;
+            
+            // Проверяем, заполнено ли хотя бы одно обязательное поле в детальной секции
+            const detailedInputs = detailedSection.querySelectorAll('input, select');
+            detailedInputs.forEach(input => {
+                if (input.value && input.type !== 'button' && !input.readOnly) {
+                    anyDetailedFieldFilled = true;
+                }
+            });
+            
+            // Управляем required полями в зависимости от выбранного режима
+            if (anyDetailedFieldFilled) {
+                // Если заполнены детальные поля - делаем их обязательными
+                setDetailedFieldsRequired(yearIndex, true);
+                // Скрываем simplified option
+                simplifiedSection.style.display = 'none';
+            } else {
+                // Если детальные поля пустые - снимаем required
+                setDetailedFieldsRequired(yearIndex, false);
+                // Показываем simplified option
+                simplifiedSection.style.display = 'block';
+            }
+        }
+
+        // Функция для управления required полями детальной секции
+        function setDetailedFieldsRequired(yearIndex, isRequired) {
+            const requiredFields = [
+                `future_has_capital_gain_income_${yearIndex}`,
+                `future_compensation_of_officers_${yearIndex}`,
+                `future_has_employees_${yearIndex}`,
+                `future_refund_or_tax_due_${yearIndex}`,
+                `future_account_number_${yearIndex}`,
+                `future_routing_number_${yearIndex}`
+            ];
+            
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.required = isRequired;
+                }
+            });
+            
+            // Управляем conditional полями refund/tax amount
+            const refundTaxDue = document.getElementById(`future_refund_or_tax_due_${yearIndex}`);
+            if (refundTaxDue && refundTaxDue.value) {
+                if (refundTaxDue.value === 'TAX_REFUND') {
+                    const refundAmount = document.getElementById(`future_refund_amount_${yearIndex}`);
+                    if (refundAmount) refundAmount.required = isRequired;
+                } else if (refundTaxDue.value === 'TAX_DUE') {
+                    const taxDueAmount = document.getElementById(`future_tax_due_amount_${yearIndex}`);
+                    if (taxDueAmount) taxDueAmount.required = isRequired;
+                }
+            }
+        }
+        
+        // Валидация взаимоисключающих полей
+        function validateExclusiveFields() {
+            const returnsAllowances = parseFloat(document.getElementById('returns_allowances').value) || 0;
+            const costOfGoodsSold = parseFloat(document.getElementById('cost_of_goods_sold').value) || 0;
+            const grossReceiptsSales = parseFloat(document.getElementById('gross_receipts_sales').value) || 0;
+            
+            if (returnsAllowances > 0 && costOfGoodsSold > 0) {
+                alert('Only one of Returns & Allowances or Cost of Goods Sold should be provided, not both.');
+                document.getElementById('cost_of_goods_sold').value = '';
+            }
+            
+            if (returnsAllowances > grossReceiptsSales) {
+                alert('Returns & Allowances cannot exceed Gross Receipts / Sales.');
+                document.getElementById('returns_allowances').value = '';
+            }
+        }
+        
+        // Обновление расчета цены
+        function updatePriceCalculation() {
+            const basePrice = 1000;
+            let additionalYearsPrice = 0;
+            let personalReturnsPrice = 0;
+            let notaryPrice = 0;
+            
+            // Расчет стоимости дополнительных лет
+            const yearsNeeded = parseInt(document.getElementById('years_needed').value) || 0;
+            additionalYearsPrice = yearsNeeded * 500;
+            
+            // Расчет стоимости персональных налоговых деклараций
+            const checkboxes = document.querySelectorAll('input[name="owner_generate_personal_tax_return[]"]:checked');
+            personalReturnsPrice = checkboxes.length * 200;
+            
+            // Расчет стоимости нотариальных услуг
+            const notarySelects = document.querySelectorAll('select[name="personal_notary[]"]');
+            notarySelects.forEach(select => {
+                if (select.value === 'true') {
+                    notaryPrice += 50;
+                }
+            });
+            
+            // Обновление отображения
+            document.getElementById('base-price').textContent = basePrice.toFixed(2);
+            document.getElementById('additional-years-price').textContent = additionalYearsPrice.toFixed(2);
+            document.getElementById('personal-returns-price').textContent = personalReturnsPrice.toFixed(2);
+            document.getElementById('notary-price').textContent = notaryPrice.toFixed(2);
+            
+            const totalPrice = basePrice + additionalYearsPrice + personalReturnsPrice + notaryPrice;
+            document.getElementById('total-price').textContent = totalPrice.toFixed(2);
+        }
+        
+        // Обработчик отправки формы
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            // Сброс ошибок
+            clearErrors();
+            
+            // Валидация формы
+            if (validateForm()) {
+                try {
+                    // Сбор данных формы
+                    const formData = collectFormData();
+                    
+                    // Преобразование в JSON и отправка
+                    const jsonData = await formDataToJson(formData);
+                    const cleanedData = removeDuplicatesAggressive(jsonData);
+                    await submitFormData(cleanedData);
+                } catch (error) {
+                    console.error('Error processing form:', error);
+                    alert('Error processing form data: ' + error.message);
+                }
+            }
+        }
+        
+        // Очистка ошибок
+        function clearErrors() {
+            const errorElements = document.querySelectorAll('.error');
+            errorElements.forEach(element => {
+                element.style.display = 'none';
+                element.textContent = '';
+            });
+        }
+        
+        // Вспомогательная функция для проверки видимости элемента
+        function isElementVisible(element) {
+            return !!(element.offsetWidth || element.offsetHeight || element.getClientRects().length);
+        }
+                
+        // Валидация формы
+        function validateForm() {
+            let isValid = true;
+    
+            // Проверка обязательных полей только видимых секций
+            const requiredFields = document.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                // Проверяем, видно ли поле и его родительские секции
+                if (!field.value.trim() && isElementVisible(field)) {
+                    showError(field.id + '_error', 'This field is required');
+                    isValid = false;
+                }
+            });
+            
+            // Проверка форматов полей
+            const patternFields = document.querySelectorAll('[pattern]');
+            patternFields.forEach(field => {
+                const pattern = new RegExp(field.pattern);
+                if (field.value && !pattern.test(field.value)) {
+                    showError(field.id + '_error', 'Invalid format');
+                    isValid = false;
+                }
+            });
+            
+            // Проверка суммы процентов владения
+            const ownershipInputs = document.querySelectorAll('input[name="owner_ownership[]"]');
+            let totalOwnership = 0;
+            ownershipInputs.forEach(input => {
+                totalOwnership += parseFloat(input.value) || 0;
+            });
+            
+            if (Math.abs(totalOwnership - 100) > 0.01) {
+                showError('owners_error', 'Total ownership percentage must equal 100%');
+                isValid = false;
+            }
+            
+            // Проверка суммы процентов компенсации офицеров
+            const compensationInputs = document.querySelectorAll('input[name="officer_compensation[]"]');
+            let totalCompensation = 0;
+            compensationInputs.forEach(input => {
+                totalCompensation += parseFloat(input.value) || 0;
+            });
+            
+            if (Math.abs(totalCompensation - 100) > 0.01) {
+                showError('officers_error', 'Total compensation percentage must equal 100%');
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // Показать ошибку
+        function showError(errorId, message) {
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+        
+        // Сбор данных формы
+        function collectFormData() {
+            const formData = new FormData(document.getElementById('taxForm'));
+            
+            // Сбор данных из основных полей
+            const mainFields = [
+                'filing_year', 'company_name', 'company_type', 'company_street_address', 
+                'company_town', 'company_state', 'company_zip', 'ein', 'date_inc',
+                'business_activity_code', 'business_activity', 'principal_product_service', 'sells_products_or_services',
+                'products_percentage', 'phone', 'ceo_name', 'ceo_position', 'total_assets',
+                'gross_receipts_sales', 'returns_allowances', 'cost_of_goods_sold', 'gross_rents',
+                'has_capital_gain_income', 'compensation_of_officers', 'has_employees',
+                'salaries_wages', 'taxes_licenses', 'repairs_maintenance', 'refund_or_tax_due',
+                'refund_amount', 'tax_due_amount', 'account_number', 'routing_number',
+                'prepared_by', 'use_own_cpa', 'preparer_name', 'firm_name', 'firm_address',
+                'firm_ein', 'ptin', 'firm_phone', 'need_multiple_years', 'years_needed',
+                'how_income_change_this_year', 'percents_higher', 'percents_lower'
+            ];
+            
+            mainFields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element && element.value) {
+                    formData.append(field, element.value);
+                }
+            });
+            
+            // Сбор файлов
+            const fileFields = ['ceo_signature', 'preparer_signature'];
+            fileFields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element && element.files.length > 0) {
+                    formData.append(field, element.files[0]);
+                }
+            });
+            
+            // Добавляем данные из динамических таблиц
+            const ownerNames = document.getElementsByName('owner_name[]');
+            const ownerSsns = document.getElementsByName('owner_ssn[]');
+            const ownerOwnerships = document.getElementsByName('owner_ownership[]');
+            const ownerGeneratePersonalTaxReturns = document.getElementsByName('owner_generate_personal_tax_return[]');
+            
+            const ownerRefundDue = document.getElementsByName('personal_refund_or_tax_due[]');
+            const ownerRefund = document.getElementsByName('personal_refund_amount[]');
+            const ownerDue = document.getElementsByName('personal_tax_due_amount[]');
+            const ownerAccount = document.getElementsByName('personal_account_number[]');
+            const ownerRouting = document.getElementsByName('personal_routing_number[]');
+            
+            for (let i = 0; i < ownerNames.length; i++) {
+                formData.append('owner_name[]', ownerNames[i].value);
+                formData.append('owner_ssn[]', ownerSsns[i].value);
+                formData.append('owner_ownership[]', ownerOwnerships[i].value);
+                formData.append('owner_generate_personal_tax_return[]', ownerGeneratePersonalTaxReturns[i].checked ? 'true' : 'false');
+                formData.append('owner_generate_personal_tax_return[]', ownerGeneratePersonalTaxReturns[i].checked ? 'true' : 'false');
+                formData.append('personal_refund_or_tax_due[]', ownerRefundDue[i].value);
+                formData.append('personal_refund_amount[]', ownerRefund[i].value);
+                formData.append('personal_tax_due_amount[]', ownerDue[i].value);
+                formData.append('personal_account_number[]', ownerAccount[i].value);
+                formData.append('personal_routing_number[]', ownerRouting[i].value);
+            }
+            
+            // Добавляем данные офицеров
+            const officerNames = document.getElementsByName('officer_name[]');
+            const officerSsns = document.getElementsByName('officer_ssn[]');
+            const officerTimes = document.getElementsByName('officer_time[]');
+            const officerOwnerships = document.getElementsByName('officer_ownership[]');
+            const officerCompensations = document.getElementsByName('officer_compensation[]');
+            
+            for (let i = 0; i < officerNames.length; i++) {
+                formData.append('officer_name[]', officerNames[i].value);
+                formData.append('officer_ssn[]', officerSsns[i].value);
+                formData.append('officer_time[]', officerTimes[i].value);
+                formData.append('officer_ownership[]', officerOwnerships[i].value);
+                formData.append('officer_compensation[]', officerCompensations[i].value);
+            }
+            
+            // Добавляем данные персональных налоговых деклараций
+            const personalFilingStatuses = document.getElementsByName('personal_filing_status[]');
+            const personalOccupations = document.getElementsByName('personal_occupation[]');
+            
+            for (let i = 0; i < personalFilingStatuses.length; i++) {
+                formData.append(`personal_filing_status_${i}`, personalFilingStatuses[i].value);
+                formData.append(`personal_occupation_${i}`, personalOccupations[i].value);
+            }
+            
+            return formData;
+        }
+        
+        
+        // Более агрессивное удаление дубликатов (только по имени и SSN)
+        function removeDuplicatesAggressive(jsonData) {
+            const cleanedData = { ...jsonData };
+            
+            if (cleanedData.owners && Array.isArray(cleanedData.owners)) {
+                const seenOwners = new Set();
+                cleanedData.owners = cleanedData.owners.filter(owner => {
+                    const key = `${owner.name}-${owner.ssn}`;
+                    if (seenOwners.has(key)) return false;
+                    seenOwners.add(key);
+                    return true;
+                });
+            }
+            
+            if (cleanedData.officers && Array.isArray(cleanedData.officers)) {
+                const seenOfficers = new Set();
+                cleanedData.officers = cleanedData.officers.filter(officer => {
+                    const key = `${officer.name}-${officer.ssn}`;
+                    if (seenOfficers.has(key)) return false;
+                    seenOfficers.add(key);
+                    return true;
+                });
+            }
+            
+            return cleanedData;
+        }
+        
+        // Преобразование FormData в JSON объект, совместимый с FastAPI моделями
+        async function formDataToJson(formData) {
+            const jsonData = {};
+            
+            // Функция для преобразования файла в base64
+            async function fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => {
+                        // Убираем префикс data:image/png;base64,
+                        const base64 = reader.result.split(',')[1];
+                        resolve(base64);
+                    };
+                    reader.onerror = error => reject(error);
+                });
+            }
+
+            // Основные поля компании
+            jsonData.filing_year = parseInt(formData.get('filing_year'));
+            jsonData.company_name = formData.get('company_name');
+            jsonData.company_type = formData.get('company_type');
+            jsonData.company_street_address = formData.get('company_street_address');
+            jsonData.company_town = formData.get('company_town');
+            jsonData.company_state = formData.get('company_state');
+            jsonData.company_zip = formData.get('company_zip');
+            jsonData.ein = formData.get('ein');
+            jsonData.date_inc = formData.get('date_inc');
+            jsonData.business_activity_code = formData.get('business_activity_code');
+            jsonData.business_activity = formData.get('business_activity');
+            jsonData.principal_product_service = formData.get('principal_product_service');
+            jsonData.sells_products_or_services = formData.get('sells_products_or_services');
+            
+            // Условные поля
+            if (jsonData.sells_products_or_services === 'Both') {
+                jsonData.products_percentage = parseInt(formData.get('products_percentage'));
+            }
+            
+            // Остальные поля
+            jsonData.phone = formData.get('phone') || null;
+            jsonData.ceo_name = formData.get('ceo_name');
+            jsonData.ceo_position = formData.get('ceo_position');
+            jsonData.total_assets = formData.get('total_assets') ? 
+                parseFloat(formData.get('total_assets')) : null;
+            
+            // Обработка CEO signature файла
+            const ceoSignatureFile = document.getElementById('ceo_signature').files[0];
+            if (ceoSignatureFile) {
+                jsonData.ceo_signature = await fileToBase64(ceoSignatureFile);
+            }
+            
+            // Финансовая информация
+            jsonData.gross_receipts_sales = parseFloat(formData.get('gross_receipts_sales'));
+            jsonData.returns_allowances = formData.get('returns_allowances') ? 
+                parseFloat(formData.get('returns_allowances')) : null;
+            jsonData.cost_of_goods_sold = formData.get('cost_of_goods_sold') ? 
+                parseFloat(formData.get('cost_of_goods_sold')) : null;
+            jsonData.gross_rents = formData.get('gross_rents') ? 
+                parseFloat(formData.get('gross_rents')) : null;
+            jsonData.has_capital_gain_income = formData.get('has_capital_gain_income') === 'true';
+            jsonData.compensation_of_officers = parseFloat(formData.get('compensation_of_officers'));
+            jsonData.has_employees = formData.get('has_employees') === 'true';
+            jsonData.salaries_wages = formData.get('salaries_wages') ? 
+                parseFloat(formData.get('salaries_wages')) : null;
+            jsonData.taxes_licenses = formData.get('taxes_licenses') ? 
+                parseFloat(formData.get('taxes_licenses')) : null;
+            jsonData.repairs_maintenance = formData.get('repairs_maintenance') ? 
+                parseFloat(formData.get('repairs_maintenance')) : null;
+            jsonData.refund_or_tax_due = formData.get('refund_or_tax_due');
+            
+            if (jsonData.refund_or_tax_due === 'TAX_REFUND') {
+                jsonData.refund_amount = parseFloat(formData.get('refund_amount'));
+            } else {
+                jsonData.tax_due_amount = parseFloat(formData.get('tax_due_amount'));
+            }
+            
+            jsonData.account_number = formData.get('account_number');
+            jsonData.routing_number = formData.get('routing_number');
+            
+            // Владельцы
+            jsonData.owners = [];
+            const ownerNames = formData.getAll('owner_name[]');
+            const ownerSsns = formData.getAll('owner_ssn[]');
+            const ownerOwnerships = formData.getAll('owner_ownership[]');
+            const ownerGeneratePersonalTaxReturns = formData.getAll('owner_generate_personal_tax_return[]');
+            const ownerRefundDue = formData.getAll('personal_refund_or_tax_due[]');
+            const ownerRefund = formData.getAll('personal_refund_amount[]');
+            const ownerDue = formData.getAll('personal_tax_due_amount[]');
+            const ownerAccount = formData.getAll('personal_account_number[]');
+            const ownerRouting = formData.getAll('personal_routing_number[]');
+            
+            for (let i = 0; i < ownerNames.length; i++) {
+                const owner = {
+                    name: ownerNames[i],
+                    ssn: ownerSsns[i],
+                    ownership_percentage: parseFloat(ownerOwnerships[i]),
+                    generate_personal_tax_return: ownerGeneratePersonalTaxReturns[i] === 'true'
+                };
+                
+                // Если владелец генерирует персональную декларацию
+                if (owner.generate_personal_tax_return) {
+                    owner.marital_status = formData.get(`personal_filing_status_${i}`);
+                    owner.position = formData.get(`personal_occupation_${i}`);
+                    
+                    // Обработка подписи владельца
+                    const ownerSignatureFile = document.getElementById(`personal_signature_${i}`)?.files[0];
+                    if (ownerSignatureFile) {
+                        owner.signature = await fileToBase64(ownerSignatureFile);
+                    }
+                    // Добавляем dependents
+                    owner.dependents = [];
+                    const dependentNames = formData.getAll(`dependent_name_${i}[]`);
+                    const dependentSsns = formData.getAll(`dependent_ssn_${i}[]`);
+                    const dependentRelationships = formData.getAll(`dependent_relationship_${i}[]`);
+                    
+                    for (let j = 0; j < dependentNames.length; j++) {
+                        if (dependentNames[j] && dependentSsns[j]) {
+                            owner.dependents.push({
+                                name: dependentNames[j],
+                                ssn: dependentSsns[j],
+                                relationship: dependentRelationships[j] || ''
+                            });
+                        }
+                    }
+                    
+                    // Финансовые поля персональной декларации
+                    owner.personal_refund_or_tax_due = ownerRefundDue[i];
+                    owner.personal_account_number = ownerAccount[i];
+                    owner.personal_routing_number = ownerRouting[i];
+                    
+                    if (owner.personal_refund_or_tax_due === 'TAX_REFUND') {
+                        owner.personal_refund_amount = parseFloat(ownerRefund[i]);
+                    } else {
+                        owner.personal_tax_due_amount = parseFloat(ownerDue[i]);
+                    }
+                }
+                
+                jsonData.owners.push(owner);
+            }
+            
+            // Офицеры
+            jsonData.officers = [];
+            const officerNames = formData.getAll('officer_name[]');
+            const officerSsns = formData.getAll('officer_ssn[]');
+            const officerTimes = formData.getAll('officer_time[]');
+            const officerOwnerships = formData.getAll('officer_ownership[]');
+            const officerCompensations = formData.getAll('officer_compensation[]');
+            
+            for (let i = 0; i < officerNames.length; i++) {
+                const officer = {
+                    name: officerNames[i],
+                    ssn: officerSsns[i],
+                    time_percentage: parseFloat(officerTimes[i]),
+                    ownership_percentage: parseFloat(officerOwnerships[i]),
+                    compensation_percentage: parseFloat(officerCompensations[i])
+                };
+                jsonData.officers.push(officer);
+            }
+            
+            // Информация о подготовителе
+            jsonData.prepared_by = formData.get('prepared_by');
+            
+            if (jsonData.prepared_by === 'CPA/Paid Preparer') {
+                jsonData.use_own_cpa = formData.get('use_own_cpa') === 'true';
+                
+                if (jsonData.use_own_cpa) {
+                    jsonData.cpa_info = {
+                        preparer_name: formData.get('preparer_name'),
+                        firm_name: formData.get('firm_name'),
+                        firm_address: formData.get('firm_address'),
+                        firm_ein: formData.get('firm_ein'),
+                        ptin: formData.get('ptin'),
+                        firm_phone: formData.get('firm_phone')
+                    };
+                    
+                    // Обработка подписи подготовителя
+                    const preparerSignatureFile = document.getElementById('preparer_signature').files[0];
+                    if (preparerSignatureFile) {
+                        jsonData.cpa_info.preparer_signature = await fileToBase64(preparerSignatureFile);
+                    }
+                }
+            }
+            
+            // Будущие налоговые декларации
+            jsonData.need_multiple_years = formData.get('need_multiple_years') === 'true';
+            
+                // Обработка future years
+            // В функции formDataToJson, в секции future years:
+            if (jsonData.need_multiple_years) {
+                jsonData.future_years = [];
+                jsonData.future_years_percents_income = [];
+                const yearsNeeded = parseInt(formData.get('years_needed'));
+                
+                for (let i = 0; i < yearsNeeded; i++) {
+                    const year = jsonData.filing_year + i + 1;
+                    
+                    // Проверяем, используется ли simplified option или детальный ввод
+                    const hasDetailedData = formData.getAll("future_gross_receipts[]")[i] || 
+                                           formData.getAll("future_returns_allowances")[i] || 
+                                           formData.getAll("future_cost_of_goods_sold")[i];
+                    
+                    if (hasDetailedData) {
+                        // Используем детальный ввод
+                        const futureYear = {
+                            year: year,
+                            gross_receipts_sales: formData.getAllAll("future_gross_receipts[]")[i] ? 
+                                parseFloat(formData.getAll("future_gross_receipts[]")[i]) : null,
+                            returns_allowances: formData.getAll("future_returns_allowances[]")[i] ? 
+                                parseFloat(formData.getAll("future_returns_allowances[]")[i]) : null,
+                            cost_of_goods_sold: formData.getAll("future_cost_of_goods_sold[]")[i] ? 
+                                parseFloat(formData.getAll("future_cost_of_goods_sold[]")[i]) : null,
+                            gross_rents: formData.getAll("future_gross_rents[]")[i] ? 
+                                parseFloat(formData.getAll("future_gross_rents[]")[i]) : null,
+                            has_capital_gain_income: formData.getAll("future_has_capital_gain_income[]")[i] === 'true',
+                            compensation_of_officers: parseFloat(formData.getAll("future_compensation_of_officers[]")[i]),
+                            has_employees: formData.getAll("future_has_employees[]")[i] === 'true',
+                            salaries_wages: formData.getAll("future_salaries_wages[]")[i] ? 
+                                parseFloat(formData.getAll("future_salaries_wages[]")[i]) : null,
+                            taxes_licenses: formData.getAll("future_taxes_licenses[]")[i] ? 
+                                parseFloat(formData.getAll("future_taxes_licenses[]")[i]) : null,
+                            repairs_maintenance: formData.getAll("future_repairs_maintenance[]")[i] ? 
+                                parseFloat(formData.getAll("future_repairs_maintenance[]")[i]) : null,
+                            refund_or_tax_due: formData.getAll("future_refund_or_tax_due[]")[i],
+                            account_number: formData.getAll("future_account_number[]")[i],
+                            routing_number: formData.getAll("future_routing_number[]")[i]
+                        };
+                        
+                        if (futureYear.refund_or_tax_due === 'TAX_REFUND') {
+                            futureYear.refund_amount = parseFloat(formData.getAll("future_refund_amount[]")[i]);
+                        } else {
+                            futureYear.tax_due_amount = parseFloat(formData.getAll("future_tax_due_amount[]")[i]);
+                        }
+                        
+                        jsonData.future_years.push(futureYear);
+                    } else {
+                        // Используем simplified option
+                        const incomeChange = formData.getAll("future_income_change[]")[i];
+                        if (incomeChange) {
+                            const futureYearPercent = {
+                                year: year,
+                                how_income_change_this_year: incomeChange
+                            };
+                            
+                            if (incomeChange === 'HIGHER') {
+                                futureYearPercent.percents_higher = formData.getAll("future_percents_higher[]")[i] ? 
+                                    parseInt(formData.getAll("future_percents_higher[]")[i]) : null;
+                            } else if (incomeChange === 'LOWER') {
+                                futureYearPercent.percents_lower = formData.getAll("future_percents_lower[]")[i] ? 
+                                    parseInt(formData.getAll("future_percents_lower[]")[i]) : null;
+                            }
+                            
+                            jsonData.future_years_percents_income.push(futureYearPercent);
+                        }
+                    }
+                }
+            }
+            
+            // Обработка полей, которые могут быть null
+            function cleanObject(obj) {
+                Object.keys(obj).forEach(key => {
+                    if (obj[key] === null || obj[key] === undefined || obj[key] === '') {
+                        delete obj[key];
+                    } else if (typeof obj[key] === 'object') {
+                        cleanObject(obj[key]);
+                    }
+                });
+                return obj;
+            }
+            
+            return cleanObject(jsonData);
+        }
+        
+        // Отправка данных на сервер
+        async function submitFormData(jsonData) {
+            try {
+                // Показываем индикатор загрузки
+                const submitBtn = document.querySelector('.submit-btn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Submitting...';
+                
+                
+                // Отправляем данные на сервер
+                const response = await fetch(API_HOST + '/generate-file', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(jsonData)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Server error');
+                }
+
+                const result = await response.json();
+                
+                // Обрабатываем успешный ответ
+                if (result.f1120_returns || result.f1040_returns) {
+                    alert('Tax returns generated successfully! Download links are available below.');
+                    
+                    // Отображаем ссылки для скачивания
+                    displayDownloadLinks(result);
+                    
+                } else {
+                    throw new Error('No files were generated');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting tax return: ' + error.message);
+            } finally {
+                // Восстанавливаем кнопку
+                const submitBtn = document.querySelector('.submit-btn');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Tax Return';
+            }
+        }
+        
+        // Функция для отображения ссылок на скачивание
+        function displayDownloadLinks(result) {
+            const downloadSection = document.createElement('div');
+            downloadSection.className = 'section';
+            downloadSection.innerHTML = '<h2>Download Generated Files</h2>';
+            
+            // Основные налоговые декларации (f1120_returns)
+            if (result.f1120_returns) {
+                const companySection = document.createElement('div');
+                companySection.innerHTML = '<h3>Company Tax Returns</h3>';
+                
+                Object.entries(result.f1120_returns).forEach(([year, filePath]) => {
+                    const link = createDownloadLink(filePath, `Download Company Tax Return for ${year}`);
+                    companySection.appendChild(link);
+                });
+                
+                downloadSection.appendChild(companySection);
+            }
+            
+            // Транскрипты (f1120_transcripts)
+            if (result.f1120_transcripts) {
+                const transcriptSection = document.createElement('div');
+                transcriptSection.innerHTML = '<h3>Transcripts</h3>';
+                
+                Object.entries(result.f1120_transcripts).forEach(([year, filePath]) => {
+                    const link = createDownloadLink(filePath, `Download Transcript for ${year}`);
+                    transcriptSection.appendChild(link);
+                });
+                
+                downloadSection.appendChild(transcriptSection);
+            }
+            
+            // Персональные декларации (f1040_returns)
+            if (result.f1040_returns) {
+                const personalSection = document.createElement('div');
+                personalSection.innerHTML = '<h3>Personal Tax Returns</h3>';
+                
+                Object.entries(result.f1040_returns).forEach(([ownerName, years]) => {
+                    const ownerDiv = document.createElement('div');
+                    ownerDiv.innerHTML = `<h4>${ownerName}</h4>`;
+                    
+                    Object.entries(years).forEach(([year, filePath]) => {
+                        const link = createDownloadLink(filePath, `Download Personal Return for ${year}`);
+                        ownerDiv.appendChild(link);
+                    });
+                    
+                    personalSection.appendChild(ownerDiv);
+                });
+                
+                downloadSection.appendChild(personalSection);
+            }
+            
+            // Вставляем секцию после формы
+            const form = document.getElementById('taxForm');
+            form.parentNode.insertBefore(downloadSection, form.nextSibling);
+            
+            // Прокручиваем к секции загрузок
+            downloadSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Функция для создания ссылки скачивания
+        function createDownloadLink(filePath, linkText) {
+            const link = document.createElement('a');
+            link.href = API_HOST + '/file/' + encodeURIComponent(filePath);
+            link.textContent = linkText;
+            link.className = 'download-link';
+            link.style.display = 'block';
+            link.style.margin = '10px 0';
+            link.style.padding = '10px';
+            link.style.backgroundColor = '#e8f4fc';
+            link.style.border = '1px solid #3498db';
+            link.style.borderRadius = '4px';
+            link.style.textDecoration = 'none';
+            link.style.color = '#2c3e50';
+            link.target = '_blank';
+            
+            return link;
+        }
+    </script>
+</body>
+</html>
