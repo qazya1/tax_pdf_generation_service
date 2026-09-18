@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+
+# Local secrets / runtime config
+config.json
+
+# Runtime output (generated PDFs, logs)
+logs/
+generated_files/
+c_generation/generated_files/
+c_generation/logs/
