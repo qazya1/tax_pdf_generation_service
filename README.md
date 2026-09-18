@@ -1,150 +1,150 @@
 # Tax PDF Generation Service
 
-A FastAPI backend that fills out real IRS tax form templates (PDF/AcroForm) with data received via a JSON API and returns ready-to-download PDF tax returns.
+Backend на FastAPI, который заполняет реальные шаблоны налоговых форм IRS (PDF/AcroForm) данными, полученными через JSON API, и возвращает готовые к скачиванию PDF-декларации.
 
-The repository actually contains **two independent, sibling services** that share the same design pattern (see [Architecture](#architecture)):
+В репозитории на самом деле находятся **два независимых, «родственных» сервиса**, построенных по одному и тому же паттерну (см. [Архитектура](#архитектура)):
 
-| Service | Location | What it generates |
+| Сервис | Расположение | Что генерирует |
 |---|---|---|
-| **Personal return generator** | repository root | Individual **Form 1040** package (Schedule 1, Schedule 2, Schedule B, Schedule C, Schedule SE, e-file authorization) for a single taxpayer or a married couple |
-| **Corporate return generator** | [`c_generation/`](./c_generation) | **Form 1120 / 1120‑S** corporate package (1125‑A, 1125‑E, 8949, Schedule D/D‑S/G, K‑1 per owner) plus the owners' personal 1040 returns, multi‑year projections, and a synthetic IRS tax‑transcript document |
+| **Генератор личной декларации** | корень репозитория | Пакет для физлица **Form 1040** (Schedule 1, Schedule 2, Schedule B, Schedule C, Schedule SE, авторизация для e-file) для одного налогоплательщика или супружеской пары |
+| **Генератор корпоративной декларации** | [`c_generation/`](./c_generation) | Пакет **Form 1120 / 1120‑S** для компании (1125‑A, 1125‑E, 8949, Schedule D/D‑S/G, K‑1 на каждого владельца), плюс личные декларации 1040 владельцев, прогноз на несколько лет вперёд и синтетическая налоговая транскрипция IRS |
 
-Both were built as separate FastAPI apps rather than a single shared package — see [Two services, one pattern](#two-services-one-pattern) for why, and what it would take to merge them.
+Оба сделаны как отдельные FastAPI-приложения, а не как единый общий пакет — почему так и что нужно, чтобы их объединить, см. в разделе [Два сервиса, один паттерн](#два-сервиса-один-паттерн).
 
-> **Note on the data.** Only the fields that matter for the filing (identity, income, refund/due amounts, etc.) come from the API request. Everything an IRS reviewer would also expect to see but that the API doesn't ask for — the preparing CPA firm, notarization dates, a matching brokerage statement of stock trades, dividend income from real public companies — is filled in with plausible randomized values from the CSV configs in [`configs/`](./configs). In other words, this service produces **realistic-looking, synthetic tax documents**, not a real e-filing pipeline: there is no IRS e-file/MeF integration, and it does not calculate a legally accurate tax liability. It's best understood as a document-generation engine for demos, QA fixtures, or synthetic training data.
-
----
-
-## How it works
-
-Both services follow the same three-step pipeline:
-
-1. **Validate & normalize the request.** The personal service validates a raw JSON body by hand (regexes + field checks in `main.py`); the corporate service uses Pydantic models (`c_generation/fast_api_models.py`) for the same job.
-2. **Compute derived figures and build one Python object per IRS form/schedule.** `forms_classes.py` (or `c_generation/forms_classes.py`) contains a class per form (e.g. `Form_1040`, `Schedule1`, `ScheduleC`, `Form_1120`, `Schedule_K1`, …). Each class:
-   - pulls year-dependent constants from the CSVs in `configs/` (tax brackets, standard deduction, SE-tax rates, dividend-paying companies, a CPA firm directory, sample brokerage transactions);
-   - computes the numbers for every line of that form;
-   - stores them in a `{form_field_name: value}` dict.
-3. **Fill the official PDF template and merge.** `pdf_filling.py`'s `Form.filling_pdf()` opens the blank IRS template for that form/year from `forms/<FormName>/<year>.pdf`, looks up each logical field name in `pdf_fields.json` to get the real AcroForm widget name, and writes the value into that widget with [PyMuPDF](https://pymupdf.readthedocs.io/) (`fitz`). Signatures and typed dates are rendered as images (`courier_new.ttf`) and stamped onto the page. `create_pdf.py` then merges every filled form into one final PDF and (for the personal service) a matching IRS tax-transcript PDF.
-
-The FastAPI app (`main.py`) exposes this as an HTTP API, stores generated files on disk, and serves them back for download.
-
-### Two services, one pattern
-
-`c_generation/` is a **parallel implementation**, not a library consumer of the root project — each has its own copy of `main.py`, `create_pdf.py`, `forms_classes.py`, `pdf_filling.py`, `pdf_fields.json`, `interface.html`, `courier_new.ttf` and `configs/`. The corporate service was evidently built by starting from the personal service's code and generalizing the same "compute → fill AcroForm → merge PDFs" pattern to a different set of forms (and, notably, the corporate service also calls back into a `Form_1040`-shaped flow to generate each owner's personal return). This makes the two feel like the same project at heart, filling out a different stack of IRS forms — hence "one uses the other" as a design pattern, even though there's no import between the two directories at runtime.
-
-Because the copies have already diverged in small ways (the corporate `pdf_filling.py` has an extra `None`-image guard, logs to `./logs/`, etc.), merging them into a single shared package is a real refactor — worth doing for a production version, but out of scope for a quick cleanup (see [Known limitations](#known-limitations)).
+> **О данных.** Из тела API-запроса берутся только поля, действительно важные для декларации (личные данные, доходы, сумма возврата/доплаты и т.д.). Всё остальное, что ожидал бы увидеть проверяющий IRS, но чего API не запрашивает — подготовившая декларацию CPA-фирма, даты нотариального заверения, соответствующая брокерская выписка по сделкам с акциями, дивидендный доход от реальных публичных компаний — заполняется правдоподобными случайными значениями из CSV-конфигов в [`configs/`](./configs). Иными словами, сервис генерирует **реалистично выглядящие, но синтетические** налоговые документы, а не является реальным конвейером электронной подачи: интеграции с IRS e-file/MeF нет, и юридически точный расчёт налога сервис не гарантирует. Правильнее воспринимать его как движок генерации документов для демо, QA-фикстур или синтетических обучающих данных.
 
 ---
 
-## Project structure
+## Как это работает
+
+Оба сервиса следуют одному и тому же конвейеру из трёх шагов:
+
+1. **Валидация и нормализация запроса.** Личный сервис валидирует «сырой» JSON вручную (регулярки и проверки полей в `main.py`); корпоративный сервис использует для этого Pydantic-модели (`c_generation/fast_api_models.py`).
+2. **Расчёт производных показателей и построение по одному Python-объекту на каждую форму/приложение IRS.** В `forms_classes.py` (или `c_generation/forms_classes.py`) есть отдельный класс на форму (например, `Form_1040`, `Schedule1`, `ScheduleC`, `Form_1120`, `Schedule_K1` и т.д.). Каждый класс:
+   - берёт зависящие от года константы из CSV в `configs/` (налоговые ставки, стандартный вычет, ставки налога для самозанятых, компании, платящие дивиденды, справочник CPA-фирм, образцы брокерских сделок);
+   - рассчитывает значения для каждой строки формы;
+   - сохраняет их в виде словаря `{имя_поля_формы: значение}`.
+3. **Заполнение PDF-шаблона и объединение.** Метод `Form.filling_pdf()` из `pdf_filling.py` открывает пустой официальный шаблон нужной формы/года из `forms/<ИмяФормы>/<год>.pdf`, по `pdf_fields.json` находит реальное имя виджета AcroForm для каждого логического имени поля и записывает туда значение с помощью [PyMuPDF](https://pymupdf.readthedocs.io/) (`fitz`). Подписи и напечатанные от руки даты отрисовываются как изображения (шрифт `courier_new.ttf`) и вставляются на страницу. Затем `create_pdf.py` объединяет все заполненные формы в один итоговый PDF и (для личного сервиса) в соответствующий PDF налоговой транскрипции.
+
+FastAPI-приложение (`main.py`) отдаёт всё это как HTTP API, сохраняет сгенерированные файлы на диске и раздаёт их обратно на скачивание.
+
+### Два сервиса, один паттерн
+
+`c_generation/` — это **параллельная реализация**, а не потребитель кода корневого проекта как библиотеки: у него своя копия `main.py`, `create_pdf.py`, `forms_classes.py`, `pdf_filling.py`, `pdf_fields.json`, `interface.html`, `courier_new.ttf` и `configs/`. Судя по всему, корпоративный сервис создавался на основе кода личного сервиса, а затем тот же паттерн «посчитать → заполнить AcroForm → объединить PDF» был обобщён под другой набор форм (и, что примечательно, корпоративный сервис также вызывает ту же логику `Form_1040`, чтобы сгенерировать личную декларацию каждого владельца компании). Поэтому по сути это один и тот же проект, заполняющий разный набор форм IRS — отсюда и формулировка «один использует другой» как паттерн проектирования, хотя во время выполнения импорта между папками нет.
+
+Поскольку копии уже слегка разошлись (в корпоративном `pdf_filling.py` есть дополнительная проверка на `None` для изображений, логирование в `./logs/` и т.п.), объединение их в один общий пакет — это уже полноценный рефакторинг, оправданный для продакшен-версии, но выходящий за рамки быстрой уборки (см. [Известные ограничения](#известные-ограничения)).
+
+---
+
+## Структура проекта
 
 ```
 .
-├── main.py                 # FastAPI app: /generate-file, /download/*, /info/{id}
-├── create_pdf.py            # Orchestrates one 1040 package (main_tax_return)
-├── forms_classes.py         # One class per form/schedule; tax calculations
-├── pdf_filling.py           # AcroForm filling engine (PyMuPDF) + title page
-├── pdf_fields.json          # Maps logical field names -> PDF widget names, by form/year
-├── interface.html           # Minimal manual test UI served at "/"
-├── courier_new.ttf           # Font used to render signatures/typed text as images
-├── configs/                  # CSV lookup tables (brackets, deductions, CPA firms, ...)
-├── forms/                    # Blank IRS templates, one folder per form, one PDF per year
+├── main.py                 # FastAPI-приложение: /generate-file, /download/*, /info/{id}
+├── create_pdf.py            # Оркестрация пакета документов 1040 (main_tax_return)
+├── forms_classes.py         # По классу на форму/приложение; налоговые расчёты
+├── pdf_filling.py           # Движок заполнения AcroForm (PyMuPDF) + титульная страница
+├── pdf_fields.json          # Сопоставляет логические имена полей с именами виджетов PDF, по форме и году
+├── interface.html           # Минимальный UI для ручного тестирования, отдаётся по "/"
+├── courier_new.ttf           # Шрифт для отрисовки подписей/напечатанного текста в виде изображений
+├── configs/                  # CSV-справочники (ставки, вычеты, CPA-фирмы, ...)
+├── forms/                    # Пустые шаблоны IRS, по папке на форму, по PDF на год
 ├── requirements.txt
 │
-└── c_generation/             # Corporate (1120 / 1120-S) sibling service — see its own README
+└── c_generation/             # Родственный сервис для корпораций (1120 / 1120-S) — см. отдельный README
     ├── main.py, create_pdf.py, forms_classes.py, pdf_filling.py, ...
-    ├── fast_api_models.py     # Pydantic request schema (this service validates via models)
+    ├── fast_api_models.py     # Pydantic-схема запроса (этот сервис валидирует через модели)
     └── forms/, configs/
 ```
 
-`forms/` holds the actual **blank IRS PDF templates** used as fill targets (e.g. `forms/1040/2024.pdf`, `forms/ScheduleC/2023.pdf`). They are looked up by `forms/<FormName>/<year>.pdf`, matching the keys in `pdf_fields.json`.
+`forms/` содержит собственно **пустые PDF-шаблоны IRS**, которые заполняются данными (например, `forms/1040/2024.pdf`, `forms/ScheduleC/2023.pdf`). Они ищутся по пути `forms/<ИмяФормы>/<год>.pdf`, что соответствует ключам в `pdf_fields.json`.
 
 ---
 
-## API reference — personal return service (root)
+## API — сервис личной декларации (корень репозитория)
 
 ### `POST /generate-file`
 
-Generates a Form 1040 package (+ IRS tax transcript) for one taxpayer and stores it server-side.
+Генерирует пакет Form 1040 (+ налоговую транскрипцию IRS) для одного налогоплательщика и сохраняет его на сервере.
 
-**Request body** (JSON):
+**Тело запроса** (JSON):
 
-| Parameter | Type | Required | Description | Constraints |
+| Параметр | Тип | Обязательное | Описание | Ограничения |
 |---|---|---|---|---|
-| `firstName` | String | Yes | Taxpayer's first name | – |
-| `lastName` | String | Yes | Taxpayer's last name | – |
-| `maritalStatus` | Enum | Yes | Marital status | `Single`, `MarriedFilingJointly` |
-| `spouseFirstName` | String | No* | Spouse's first name | *required if `maritalStatus = MarriedFilingJointly`* |
-| `spouseLastName` | String | No* | Spouse's last name | *required if `maritalStatus = MarriedFilingJointly`* |
-| `residentialAddress` | String | Yes | Residential address | – |
-| `town` | String | Yes | Town/City | – |
-| `state` | Enum | Yes | State (affects notary data) | list of US states |
-| `zipCode` | String | Yes | ZIP code | `XXXXX` or `XXXXX-XXXX` |
-| `ssn` | String | Yes | Taxpayer's SSN | exactly 9 digits |
-| `spouseSsn` | String | No* | Spouse's SSN | *required if married*; exactly 9 digits |
-| `occupation` | String | Yes | Taxpayer's occupation | – |
-| `spouseOccupation` | String | No* | Spouse's occupation | *required if married* |
-| `employmentType` | Enum | Yes | Employment status | `Employed`, `Sole Prop. / Self-employed` |
-| `principalBusiness` | String | No* | Business/profession | *required if self-employed* |
-| `ein` | String | No* | EIN | *optional even if self-employed*; `XX-XXXXXXX` |
-| `naicsCode` | String | No* | NAICS code | *required if self-employed*; exactly 6 digits |
-| `businessName` | String | No | Business name, if different from personal name | defaults to `firstName + lastName` |
-| `businessAddress` | String | No | Business address, if different | defaults to `residentialAddress` |
-| `businessTown` | String | No | Business town, if different | defaults to `town` |
-| `businessState` | Enum | No | Business state, if different | defaults to `state` |
-| `businessZip` | String | No | Business ZIP, if different | `XXXXX` or `XXXXX-XXXX` |
-| `year` | Number | Yes | Tax filing year | `2022`–`2025` (2025 reuses 2024's schedules) |
-| `grossIncomeAmount` | Number | Yes | Gross income amount | must be positive |
-| `refundOrPayment` | Enum | Yes | Refund or payment selection | `TAX_REFUND`, `TAX_DUE` |
-| `refundAmount` | Number | No* | Refund amount | *required if `refundOrPayment = TAX_REFUND`* |
-| `bankAccountNumber` | String | No* | Bank account number | *required if claiming refund*; max 17 digits |
-| `bankRoutingNumber` | String | No* | Bank routing number | *required if claiming refund*; max 9 digits |
-| `taxesDueAmount` | Number | No* | Taxes due amount | *required if `refundOrPayment = TAX_DUE`* |
-| `preparationType` | Enum | Yes | Tax preparation type | `Self-prepared`, `CPA-prepared` |
-| `dependents` | Array | No | List of dependents (max 4) | each: `{ name, ssn (9 digits), relation }` |
-| `signature` | File | Yes | Taxpayer's signature (PNG) | base64-encoded image |
-| `spouseSignature` | File | No* | Spouse's signature | *required if married*; base64-encoded image |
+| `firstName` | String | Да | Имя налогоплательщика | – |
+| `lastName` | String | Да | Фамилия налогоплательщика | – |
+| `maritalStatus` | Enum | Да | Семейное положение | `Single`, `MarriedFilingJointly` |
+| `spouseFirstName` | String | Нет* | Имя супруга(и) | *обязательно, если `maritalStatus = MarriedFilingJointly`* |
+| `spouseLastName` | String | Нет* | Фамилия супруга(и) | *обязательно, если `maritalStatus = MarriedFilingJointly`* |
+| `residentialAddress` | String | Да | Адрес проживания | – |
+| `town` | String | Да | Город | – |
+| `state` | Enum | Да | Штат (влияет на нотариальные данные) | список штатов США |
+| `zipCode` | String | Да | Почтовый индекс | `XXXXX` или `XXXXX-XXXX` |
+| `ssn` | String | Да | SSN налогоплательщика | ровно 9 цифр |
+| `spouseSsn` | String | Нет* | SSN супруга(и) | *обязательно при браке*; ровно 9 цифр |
+| `occupation` | String | Да | Профессия налогоплательщика | – |
+| `spouseOccupation` | String | Нет* | Профессия супруга(и) | *обязательно при браке* |
+| `employmentType` | Enum | Да | Тип занятости | `Employed`, `Sole Prop. / Self-employed` |
+| `principalBusiness` | String | Нет* | Сфера деятельности/бизнеса | *обязательно при самозанятости* |
+| `ein` | String | Нет* | EIN | *необязателен даже при самозанятости*; `XX-XXXXXXX` |
+| `naicsCode` | String | Нет* | Код NAICS | *обязателен при самозанятости*; ровно 6 цифр |
+| `businessName` | String | Нет | Название бизнеса, если отличается от личного имени | по умолчанию `firstName + lastName` |
+| `businessAddress` | String | Нет | Адрес бизнеса, если отличается | по умолчанию `residentialAddress` |
+| `businessTown` | String | Нет | Город бизнеса, если отличается | по умолчанию `town` |
+| `businessState` | Enum | Нет | Штат бизнеса, если отличается | по умолчанию `state` |
+| `businessZip` | String | Нет | Индекс бизнеса, если отличается | `XXXXX` или `XXXXX-XXXX` |
+| `year` | Number | Да | Год подачи декларации | `2022`–`2025` (для 2025 используются формы 2024 года) |
+| `grossIncomeAmount` | Number | Да | Сумма валового дохода | должна быть положительной |
+| `refundOrPayment` | Enum | Да | Выбор возврата или доплаты | `TAX_REFUND`, `TAX_DUE` |
+| `refundAmount` | Number | Нет* | Сумма возврата | *обязательно, если `refundOrPayment = TAX_REFUND`* |
+| `bankAccountNumber` | String | Нет* | Номер банковского счёта | *обязательно при возврате*; макс. 17 цифр |
+| `bankRoutingNumber` | String | Нет* | Routing-номер банка | *обязательно при возврате*; макс. 9 цифр |
+| `taxesDueAmount` | Number | Нет* | Сумма к доплате | *обязательно, если `refundOrPayment = TAX_DUE`* |
+| `preparationType` | Enum | Да | Способ подготовки декларации | `Self-prepared`, `CPA-prepared` |
+| `dependents` | Array | Нет | Список иждивенцев (макс. 4) | каждый: `{ name, ssn (9 цифр), relation }` |
+| `signature` | File | Да | Подпись налогоплательщика (PNG) | изображение в base64 |
+| `spouseSignature` | File | Нет* | Подпись супруга(и) | *обязательно при браке*; изображение в base64 |
 
-**Response body:**
+**Тело ответа:**
 
-| Field | Type | Description |
+| Поле | Тип | Описание |
 |---|---|---|
-| `fileId` | String | UUID identifying the generated files |
-| `downloadLink` | String | Link to download the tax return |
-| `transcriptLink` | String | Link to download the tax transcript |
+| `fileId` | String | UUID, идентифицирующий сгенерированные файлы |
+| `downloadLink` | String | Ссылка на скачивание декларации |
+| `transcriptLink` | String | Ссылка на скачивание транскрипции |
 | `status` | String | `"success"` |
 
-**Errors:** `400` — request JSON is malformed or fails validation · `500` — error during generation.
+**Ошибки:** `400` — тело запроса некорректно или не проходит валидацию · `500` — ошибка при генерации.
 
 ### `GET /download/{file_id}` / `GET /download/transcript/{file_id}`
 
-Downloads the generated return / transcript PDF for a given `fileId`. `404` if the id or the underlying file doesn't exist.
+Скачивание сгенерированной декларации / транскрипции по `fileId`. `404`, если такого id или соответствующего файла не существует.
 
 ### `GET /info/{file_id}`
 
-Returns the metadata that was stored for a previously generated return.
+Возвращает метаданные, сохранённые для ранее сгенерированной декларации.
 
-| Field | Type | Description |
+| Поле | Тип | Описание |
 |---|---|---|
-| `taxYear` | string | Tax year for the filing |
-| `name` | string | Primary taxpayer's full name |
-| `maritalStatus` | string | `"Single"` or `"Married, filling jointly"` |
-| `spouseName` | string | Spouse's full name, if applicable |
-| `SSN` / `spouseSSN` | string | Social Security Number(s) |
-| `refundOrOwed` | string | `"I want to claim a refund"` or `"I want to pay taxes due"` |
-| `refundAmount` / `owedAmount` | number | Amount, if applicable |
-| `dependent1Name` … `dependent4Name` | string | Dependents' names |
-| `preparerFirmName`, `preparerFirmAddress`, `preparerFirmEIN`, `preparerFirmPTIN` | string | Assigned CPA firm details |
+| `taxYear` | string | Год, за который подаётся декларация |
+| `name` | string | Полное имя основного налогоплательщика |
+| `maritalStatus` | string | `"Single"` или `"Married, filling jointly"` |
+| `spouseName` | string | Полное имя супруга(и), если применимо |
+| `SSN` / `spouseSSN` | string | Номера социального страхования |
+| `refundOrOwed` | string | `"I want to claim a refund"` или `"I want to pay taxes due"` |
+| `refundAmount` / `owedAmount` | number | Сумма, если применимо |
+| `dependent1Name` … `dependent4Name` | string | Имена иждивенцев |
+| `preparerFirmName`, `preparerFirmAddress`, `preparerFirmEIN`, `preparerFirmPTIN` | string | Данные назначенной CPA-фирмы |
 
-**Errors:** `404` — no file with that id.
+**Ошибки:** `404` — файл с таким id не найден.
 
-> This service persists metadata in **MySQL** (see [Configuration](#configuration)); the corporate service in `c_generation/` does not use a database — see [its README](./c_generation/README.md) for its API.
+> Этот сервис хранит метаданные в **MySQL** (см. [Конфигурация](#конфигурация)); корпоративный сервис в `c_generation/` базу данных не использует — см. [его README](./c_generation/README.md) для описания его API.
 
 ---
 
-## Configuration
+## Конфигурация
 
-The root service reads DB credentials from a `config.json` file (not committed) at startup:
+Корневой сервис при старте читает учётные данные БД из файла `config.json` (не закоммичен):
 
 ```json
 {
@@ -154,26 +154,26 @@ The root service reads DB credentials from a `config.json` file (not committed) 
 }
 ```
 
-It expects a reachable local MySQL server and creates its `files` table automatically on boot (`init_db()` in `main.py`).
+Для работы требуется доступный локальный сервер MySQL; таблица `files` создаётся автоматически при старте (`init_db()` в `main.py`).
 
-## Running locally
+## Запуск локально
 
 ```bash
 pip install -r requirements.txt
-# create config.json with your MySQL credentials (see above)
-python main.py            # serves on http://127.0.0.1:8000
+# создайте config.json с вашими учётными данными MySQL (см. выше)
+python main.py            # доступен на http://127.0.0.1:8000
 ```
 
-A minimal manual test form is served at `/` (`interface.html`).
+По адресу `/` отдаётся минимальная форма для ручного тестирования (`interface.html`).
 
-For the corporate service, see [`c_generation/README.md`](./c_generation/README.md).
+Для корпоративного сервиса см. [`c_generation/README.md`](./c_generation/README.md).
 
 ---
 
-## Known limitations
+## Известные ограничения
 
-- **`config.json` isn't committed.** The root service won't start without it (MySQL credentials). This is expected for a project that shouldn't ship real credentials, but it means the service can't be run out of the box without first creating that file (or swapping storage for something else).
-- **Not a real e-filing system.** No IRS MeF/e-file integration; several supporting figures (CPA firm, filing dates, sample brokerage trades, dividend income) are randomized from the CSVs in `configs/`, so the output is realistic but not a legally accurate return.
-- **`c_generation` duplicates most of the root project's code** (`pdf_filling.py`, font, parts of `configs/`) instead of importing it as a shared package. Functionally fine since each is deployed as its own service, but a real refactor (shared `common/` package) would remove the duplication — left as-is here since the two copies have already diverged slightly in behavior.
-- **`c_generation`'s owners/officers limit doesn't match its own docs.** The request docs describe up to 8 owners and 8 officers, but the current Pydantic model (`fast_api_models.py`) caps both lists at 4 (`max_items=4`).
-- **`c_generation`'s tax-transcript form is currently unreachable.** `TaxTranscript1120.filling_pdf()` looks for a template at `forms/tax_transcript1120/<year>.pdf`, but only a single flat `forms/tax_transcript1120.pdf` is committed — the year-based template is missing. Generating a corporate return's tax transcript will fail until that template is added in the expected location.
+- **`config.json` не закоммичен.** Без него корневой сервис не запустится (нужны учётные данные MySQL). Это ожидаемо для проекта, который не должен публиковать реальные учётные данные, но означает, что «из коробки» сервис не запустится без предварительного создания этого файла (или замены хранения метаданных на что-то другое).
+- **Это не реальная система электронной подачи.** Интеграции с IRS MeF/e-file нет; часть вспомогательных данных (CPA-фирма, даты подачи, образцы брокерских сделок, дивидендный доход) генерируется случайно из CSV в `configs/`, поэтому результат выглядит реалистично, но не является юридически точной декларацией.
+- **`c_generation` дублирует большую часть кода корневого проекта** (`pdf_filling.py`, шрифт, часть `configs/`) вместо того, чтобы импортировать его как общий пакет. Функционально это не проблема, так как каждый из сервисов деплоится отдельно, но полноценный рефакторинг (общий пакет `common/`) убрал бы дублирование — здесь оставлено как есть, поскольку две копии уже слегка разошлись по поведению.
+- **Форма налоговой транскрипции в `c_generation` сейчас недостижима.** `TaxTranscript1120.filling_pdf()` ищет шаблон по пути `forms/tax_transcript1120/<год>.pdf`, но в репозитории закоммичен только один плоский файл `forms/tax_transcript1120.pdf` — шаблона по годам нет. Генерация транскрипции для корпоративной декларации завершится ошибкой, пока такой шаблон не будет добавлен по ожидаемому пути.
+- **Лимит владельцев/офицеров в `c_generation` не совпадает с собственной документацией.** В документации к запросу указано до 8 владельцев и 8 офицеров, но текущая Pydantic-модель (`fast_api_models.py`) ограничивает оба списка четырьмя записями (`max_items=4`).
