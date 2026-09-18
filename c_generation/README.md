@@ -1,199 +1,199 @@
-# Corporate Tax PDF Generator (`c_generation`)
+# Генератор корпоративной налоговой декларации (`c_generation`)
 
-A second, sibling FastAPI service (see the [root README](../README.md) for how it relates to the personal-return service) that fills out a **corporate** IRS return package — Form 1120 (C‑corp) or 1120‑S (S‑corp) — together with its supporting schedules, each owner's personal Form 1040, and multi‑year projections, then returns downloadable PDFs.
+Второй, родственный FastAPI-сервис (см. [корневой README](../README.md), где описано, как он связан с первым), который заполняет **корпоративный** пакет деклараций IRS — Form 1120 (C‑corp) или 1120‑S (S‑corp) — вместе с сопутствующими приложениями, личной декларацией Form 1040 каждого владельца и прогнозом на несколько лет вперёд, а затем возвращает готовые к скачиванию PDF.
 
-It reuses the same fill-a-blank-AcroForm-template pattern as the root project (`pdf_filling.py` + `pdf_fields.json` + `forms/<FormName>/<year>.pdf`), generalized to the corporate form set. See [How it works](../README.md#how-it-works) in the root README for the shared mechanics; this document covers what's specific to the corporate service.
+Использует тот же паттерн «заполнить пустой шаблон AcroForm» (`pdf_filling.py` + `pdf_fields.json` + `forms/<ИмяФормы>/<год>.pdf`), что и корневой проект, но обобщённый под другой набор форм. Общий механизм описан в разделе [«Как это работает»](../README.md#как-это-работает) корневого README; здесь — только то, что специфично для корпоративного сервиса.
 
-## What it generates
+## Что генерируется
 
-For the requested filing year (and any additional years requested):
+Для запрошенного года подачи (и любых дополнительных лет, если запрошены):
 
-- **Form 1120** (C‑corp) or **Form 1120‑S** (S‑corp) — selected by `company_type`
-- **Form 1125‑A** (Cost of Goods Sold) — only if the company sells `Products`
-- **Form 1125‑E** (Officer Compensation) — only if gross income ≥ $500,000
-- **Schedule G** — only if any owner holds more than 20% ownership
-- **Schedule D** (C‑corp) or **Schedule D‑S** (S‑corp) — capital gains/losses
-- **Form 8949** — sales/dispositions of capital assets (backed by the sample brokerage transactions in `configs/transactions.csv`)
-- **Schedule K‑1** — one per owner, S‑corp only
-- **Firm authorization** (e‑file authorization for the company)
-- A synthetic **IRS tax transcript** for the corporate return (see [Known limitations](../README.md#known-limitations) — this step currently can't find its PDF template)
+- **Form 1120** (C‑corp) или **Form 1120‑S** (S‑corp) — выбирается по `company_type`
+- **Form 1125‑A** (себестоимость реализованной продукции) — только если компания продаёт `Products`
+- **Form 1125‑E** (вознаграждение офицеров) — только если валовой доход ≥ 500 000 $
+- **Schedule G** — только если у кого-то из владельцев доля больше 20%
+- **Schedule D** (C‑corp) или **Schedule D‑S** (S‑corp) — прирост/убыток капитала
+- **Form 8949** — операции с капитальными активами (на основе образцов брокерских сделок из `configs/transactions.csv`)
+- **Schedule K‑1** — по одной на каждого владельца, только для S‑corp
+- **Авторизация фирмы** (авторизация e-file для компании)
+- Синтетическая **налоговая транскрипция IRS** для корпоративной декларации (см. [Известные ограничения](../README.md#известные-ограничения) — на этом шаге сейчас не находится PDF-шаблон)
 
-If an owner has `generate_personal_tax_return: true`, the service additionally produces that owner's **personal Form 1040 package** (1040, Schedule 1, Schedule B, e‑file authorization) using the same `Form_1040`/`Schedule1`/`ScheduleB` machinery as the root project — this is the concrete instance of "one project using the other's forms" mentioned in the root README. If `need_multiple_years` is set, it repeats the whole corporate + personal generation for each future year, either from explicit per-year figures (`future_years`) or by applying a percentage growth/decline to the current year (`future_years_percents_income`).
+Если у владельца `generate_personal_tax_return: true`, сервис дополнительно генерирует его **личный пакет Form 1040** (1040, Schedule 1, Schedule B, авторизация для e-file), используя тот же механизм `Form_1040`/`Schedule1`/`ScheduleB`, что и корневой проект — это и есть конкретный пример «использования одного проекта другим», упомянутый в корневом README. Если установлен `need_multiple_years`, вся генерация (корпоративная + личная) повторяется для каждого будущего года — либо по явным показателям за год (`future_years`), либо применением процента роста/падения к текущему году (`future_years_percents_income`).
 
-## API reference
+## API
 
 ### `GET /`
 
-Serves `interface.html`, a minimal manual test form.
+Отдаёт `interface.html` — минимальную форму для ручного тестирования.
 
 ### `POST /generate-file`
 
-Accepts a `TaxReturnRequest` JSON body (validated with Pydantic — see `fast_api_models.py`) and generates the full set of PDFs described above. Returns a dict of generated file paths (corporate returns/transcripts per year, personal returns per owner per year) — see `main_tax_return()` in `create_pdf.py`.
+Принимает тело запроса `TaxReturnRequest` в формате JSON (валидируется через Pydantic — см. `fast_api_models.py`) и генерирует весь описанный выше набор PDF. Возвращает словарь путей к сгенерированным файлам (корпоративные декларации/транскрипции по годам, личные декларации по владельцам и годам) — см. `main_tax_return()` в `create_pdf.py`.
 
 ### `GET /file/{file_path}`
 
-Downloads a previously generated file by its server-side path.
+Скачивание ранее сгенерированного файла по его пути на сервере.
 
 ---
 
-## Request body (JSON structure)
+## Тело запроса (структура JSON)
 
-### 1. Company information
+### 1. Информация о компании
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `filing_year` | integer | Must be a valid year (e.g. `2023`). The oldest year for which the tax return is needed. | ✅ Yes |
-| `company_name` | string | – | ✅ Yes |
-| `company_type` | string | One of: `C corp`, `S corp`. | ✅ Yes |
-| `company_street_address` | string | – | ✅ Yes |
-| `company_town` | string | – | ✅ Yes |
-| `company_state` | string | Must be a valid US state (e.g. `NY`, `CA`). | ✅ Yes |
-| `company_zip` | string | `XXXXX`, `XXXXX-XXXX`, or `XXXXXXXXX`. | ✅ Yes |
-| `ein` | string | `XX-XXXXXXX` or `XXXXXXXXX`. | ✅ Yes |
-| `date_inc` | string (ISO‑8601) | Year must be ≤ `filing_year`. | ✅ Yes |
-| `business_activity_code` | string | `XXXXXX`. | ✅ Yes |
-| `principal_product_service` | string | – | ✅ Yes |
-| `business_activity` | string | – | ✅ Yes |
-| `sells_products_or_services` | string | One of: `Products`, `Services`, `Both`. | ✅ Yes |
-| `products_percentage` | integer | Required if `sells_products_or_services = Both`. 1–99. | ❌ No |
-| `phone` | string | Valid US phone number. | ❌ No |
-| `ceo_name` | string | – | ✅ Yes |
-| `ceo_position` | string | – | ✅ Yes |
-| `ceo_signature` | string (Base64) | Must be a `.PNG` image at a specified resolution. | ✅ Yes |
-| `total_assets` | number | – | ❌ No |
+| `filing_year` | integer | Должен быть корректным годом (например, `2023`). Самый ранний год, за который нужна декларация. | ✅ Да |
+| `company_name` | string | – | ✅ Да |
+| `company_type` | string | Одно из: `C corp`, `S corp`. | ✅ Да |
+| `company_street_address` | string | – | ✅ Да |
+| `company_town` | string | – | ✅ Да |
+| `company_state` | string | Должен быть корректным штатом США (например, `NY`, `CA`). | ✅ Да |
+| `company_zip` | string | `XXXXX`, `XXXXX-XXXX` или `XXXXXXXXX`. | ✅ Да |
+| `ein` | string | `XX-XXXXXXX` или `XXXXXXXXX`. | ✅ Да |
+| `date_inc` | string (ISO‑8601) | Год должен быть ≤ `filing_year`. | ✅ Да |
+| `business_activity_code` | string | `XXXXXX`. | ✅ Да |
+| `principal_product_service` | string | – | ✅ Да |
+| `business_activity` | string | – | ✅ Да |
+| `sells_products_or_services` | string | Одно из: `Products`, `Services`, `Both`. | ✅ Да |
+| `products_percentage` | integer | Обязательно, если `sells_products_or_services = Both`. От 1 до 99. | ❌ Нет |
+| `phone` | string | Корректный телефонный номер США. | ❌ Нет |
+| `ceo_name` | string | – | ✅ Да |
+| `ceo_position` | string | – | ✅ Да |
+| `ceo_signature` | string (Base64) | Изображение `.PNG` заданного разрешения. | ✅ Да |
+| `total_assets` | number | – | ❌ Нет |
 
-### 2. Financial information
+### 2. Финансовая информация
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `gross_receipts_sales` | number | – | ✅ Yes |
-| `returns_allowances` | number | Cannot be entered if `cost_of_goods_sold` is provided. | ❌ No |
-| `cost_of_goods_sold` | number | Cannot be entered if `returns_allowances` is provided. | ❌ No |
-| `gross_rents` | number | – | ❌ No |
-| `has_capital_gain_income` | boolean | – | ✅ Yes |
-| `compensation_of_officers` | number | – | ✅ Yes |
-| `has_employees` | boolean | – | ✅ Yes |
-| `salaries_wages` | number | Must be `0` if `has_employees = false`. | ❌ No |
-| `compensation_of_officers_in_cost_of_labor` | number | – | ❌ No |
-| `taxes_licenses` | number | – | ❌ No |
-| `repairs_maintenance` | number | – | ❌ No |
-| `refund_or_tax_due` | string | One of: `REFUND`, `TAX DUE`. | ✅ Yes |
-| `refund_amount` | number | Required if `refund_or_tax_due = REFUND`. | ❌ No |
-| `tax_due_amount` | number | Required if `refund_or_tax_due = TAX DUE`. | ❌ No |
-| `account_number` | string | Numeric. | ✅ Yes |
-| `routing_number` | string | Valid US routing number. | ✅ Yes |
+| `gross_receipts_sales` | number | – | ✅ Да |
+| `returns_allowances` | number | Нельзя указывать, если указан `cost_of_goods_sold`. | ❌ Нет |
+| `cost_of_goods_sold` | number | Нельзя указывать, если указан `returns_allowances`. | ❌ Нет |
+| `gross_rents` | number | – | ❌ Нет |
+| `has_capital_gain_income` | boolean | – | ✅ Да |
+| `compensation_of_officers` | number | – | ✅ Да |
+| `has_employees` | boolean | – | ✅ Да |
+| `salaries_wages` | number | Должно быть `0`, если `has_employees = false`. | ❌ Нет |
+| `compensation_of_officers_in_cost_of_labor` | number | – | ❌ Нет |
+| `taxes_licenses` | number | – | ❌ Нет |
+| `repairs_maintenance` | number | – | ❌ Нет |
+| `refund_or_tax_due` | string | Одно из: `REFUND`, `TAX DUE`. | ✅ Да |
+| `refund_amount` | number | Обязательно, если `refund_or_tax_due = REFUND`. | ❌ Нет |
+| `tax_due_amount` | number | Обязательно, если `refund_or_tax_due = TAX DUE`. | ❌ Нет |
+| `account_number` | string | Числовое значение. | ✅ Да |
+| `routing_number` | string | Корректный routing-номер банка США. | ✅ Да |
 
-### 3. Owners information
+### 3. Информация о владельцах
 
-An array of owners (max 8 entries — enforced by the docs; the current Pydantic model caps it at 4, see [Known limitations](../README.md#known-limitations)).
+Массив владельцев (максимум 8 записей — согласно документации; в текущей Pydantic-модели ограничение — 4, см. [Известные ограничения](../README.md#известные-ограничения)).
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `name` | string | – | ✅ Yes |
-| `ssn` | string | `XXXXXXXXX`. | ✅ Yes |
-| `ownership_percentage` | number | ≤ 100 (all owners must total exactly 100). Max 1 decimal place. | ✅ Yes |
-| `generate_personal_tax_return` | boolean | – | ✅ Yes |
+| `name` | string | – | ✅ Да |
+| `ssn` | string | `XXXXXXXXX`. | ✅ Да |
+| `ownership_percentage` | number | ≤ 100 (сумма по всем владельцам должна быть ровно 100). Максимум 1 знак после запятой. | ✅ Да |
+| `generate_personal_tax_return` | boolean | – | ✅ Да |
 
-If `generate_personal_tax_return = true`, each owner also needs:
+Если `generate_personal_tax_return = true`, для владельца также требуется:
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `generate_future_returns` | boolean | – | ❌ No |
-| `years_of_future_returns` | integer | Required if `generate_future_returns = true`. | ❌ No |
-| `signature` | string (Base64) | `.PNG` image at a specified resolution. | ✅ Yes |
-| `position` | string | – | ✅ Yes |
-| `marital_status` | string | One of: `Single`, `MarriedFilingJointly`. | ✅ Yes |
-| `dependents` | array | Follows the 1040-style dependent structure (see the [root API's `dependents` field](../README.md#api-reference--personal-return-service-root)). | ❌ No |
-| `personal_refund_or_tax_due` | string | One of: `TAX_REFUND`, `TAX_DUE`. | ✅ Yes |
-| `personal_refund_amount` | number | Required if `personal_refund_or_tax_due = REFUND`. | ❌ No |
-| `personal_tax_due_amount` | number | Required if `personal_refund_or_tax_due = TAX DUE`. | ❌ No |
-| `personal_account_number` | string | Numeric. | ✅ Yes |
-| `personal_routing_number` | string | Valid US routing number. | ✅ Yes |
+| `generate_future_returns` | boolean | – | ❌ Нет |
+| `years_of_future_returns` | integer | Обязательно, если `generate_future_returns = true`. | ❌ Нет |
+| `signature` | string (Base64) | Изображение `.PNG` заданного разрешения. | ✅ Да |
+| `position` | string | – | ✅ Да |
+| `marital_status` | string | Одно из: `Single`, `MarriedFilingJointly`. | ✅ Да |
+| `dependents` | array | По структуре как иждивенцы в декларации 1040 (см. [поле `dependents` в корневом API](../README.md#api--сервис-личной-декларации-корень-репозитория)). | ❌ Нет |
+| `personal_refund_or_tax_due` | string | Одно из: `TAX_REFUND`, `TAX_DUE`. | ✅ Да |
+| `personal_refund_amount` | number | Обязательно, если `personal_refund_or_tax_due = REFUND`. | ❌ Нет |
+| `personal_tax_due_amount` | number | Обязательно, если `personal_refund_or_tax_due = TAX DUE`. | ❌ Нет |
+| `personal_account_number` | string | Числовое значение. | ✅ Да |
+| `personal_routing_number` | string | Корректный routing-номер банка США. | ✅ Да |
 
-### 4. 1125‑E table (officer compensation)
+### 4. Таблица 1125‑E (вознаграждение офицеров)
 
-An array of officers (max 8 entries). Required if business rules require it, or at least one owner has `generate_personal_tax_return = true`.
+Массив офицеров (максимум 8 записей). Требуется, если этого требуют бизнес-правила, либо если хотя бы у одного владельца `generate_personal_tax_return = true`.
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `name` | string | Pulled from the owners table. | ✅ Yes |
-| `ssn` | string | Matches SSN format. | ✅ Yes |
-| `ownership_percentage` | number | ≤ 100. Max 1 decimal place. | ✅ Yes |
-| `time_percentage` | number | All officers must total exactly 100. | ✅ Yes |
-| `compensation_percentage` | number | All officers must total exactly 100. | ✅ Yes |
+| `name` | string | Берётся из таблицы владельцев. | ✅ Да |
+| `ssn` | string | Соответствует формату SSN. | ✅ Да |
+| `ownership_percentage` | number | ≤ 100. Максимум 1 знак после запятой. | ✅ Да |
+| `time_percentage` | number | Сумма по всем офицерам должна быть ровно 100. | ✅ Да |
+| `compensation_percentage` | number | Сумма по всем офицерам должна быть ровно 100. | ✅ Да |
 
-### 5. Preparer information
+### 5. Информация о составителе декларации
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `prepared_by` | string | One of: `Bookkeeper`, `CPA/Paid Preparer`. | ✅ Yes |
+| `prepared_by` | string | Одно из: `Bookkeeper`, `CPA/Paid Preparer`. | ✅ Да |
 
-If `prepared_by = CPA/Paid Preparer`:
+Если `prepared_by = CPA/Paid Preparer`:
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `use_own_cpa` | boolean | – | ✅ Yes |
+| `use_own_cpa` | boolean | – | ✅ Да |
 
-If `use_own_cpa = true`:
+Если `use_own_cpa = true`:
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `preparer_name` | string | – | ✅ Yes |
-| `preparer_signature` | string (Base64) | `.PNG` image at a specified resolution. | ✅ Yes |
-| `firm_name` | string | – | ✅ Yes |
-| `firm_address` | string | – | ✅ Yes |
-| `firm_ein` | string | `XX-XXXXXXX` or `XXXXXXXXX`. | ✅ Yes |
-| `ptin` | string | `PXXXXXXXX`, `P XXXXXXXX`, or `P-XXXXXXXX`. | ✅ Yes |
-| `firm_phone` | string | Valid US phone number. | ✅ Yes |
+| `preparer_name` | string | – | ✅ Да |
+| `preparer_signature` | string (Base64) | Изображение `.PNG` заданного разрешения. | ✅ Да |
+| `firm_name` | string | – | ✅ Да |
+| `firm_address` | string | – | ✅ Да |
+| `firm_ein` | string | `XX-XXXXXXX` или `XXXXXXXXX`. | ✅ Да |
+| `ptin` | string | `PXXXXXXXX`, `P XXXXXXXX` или `P-XXXXXXXX`. | ✅ Да |
+| `firm_phone` | string | Корректный телефонный номер США. | ✅ Да |
 
-### 6. Future tax returns
+### 6. Будущие налоговые декларации
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `need_multiple_years` | boolean | – | ✅ Yes |
-| `years_needed` | integer | Required if `need_multiple_years = true`. | ❌ No |
+| `need_multiple_years` | boolean | – | ✅ Да |
+| `years_needed` | integer | Обязательно, если `need_multiple_years = true`. | ❌ Нет |
 
-For each additional year — use **either** `future_years` (explicit figures) **or** `future_years_percents_income` (percentage change), not both:
+Для каждого дополнительного года используйте **либо** `future_years` (явные показатели), **либо** `future_years_percents_income` (процентное изменение), но не оба сразу:
 
-**`future_years[]`** (explicit figures per year):
+**`future_years[]`** (явные показатели по годам):
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `year` | integer | Must be sequential after `filing_year`. | ✅ Yes |
-| `gross_receipts_sales` | number | – | ❌ No |
-| `returns_allowances` | number | Cannot be entered if `cost_of_goods_sold` is provided. | ❌ No |
-| `cost_of_goods_sold` | number | Cannot be entered if `returns_allowances` is provided. | ❌ No |
-| `gross_rents` | number | – | ❌ No |
-| `has_capital_gain_income` | boolean | – | ✅ Yes |
-| `compensation_of_officers` | number | – | ✅ Yes |
-| `has_employees` | boolean | – | ✅ Yes |
-| `salaries_wages` | number | Must be `0` if `has_employees = false`. | ❌ No |
-| `taxes_licenses` | number | – | ❌ No |
-| `repairs_maintenance` | number | – | ❌ No |
-| `refund_or_tax_due` | string | One of: `REFUND`, `TAX DUE`. | ✅ Yes |
-| `refund_amount` | number | Required if `refund_or_tax_due = REFUND`. | ❌ No |
-| `tax_due_amount` | number | Required if `refund_or_tax_due = TAX DUE`. | ❌ No |
-| `total_assets` | number | – | ❌ No |
-| `account_number` | string | Numeric. | ✅ Yes |
-| `routing_number` | string | Valid US routing number. | ✅ Yes |
+| `year` | integer | Должен идти последовательно после `filing_year`. | ✅ Да |
+| `gross_receipts_sales` | number | – | ❌ Нет |
+| `returns_allowances` | number | Нельзя указывать, если указан `cost_of_goods_sold`. | ❌ Нет |
+| `cost_of_goods_sold` | number | Нельзя указывать, если указан `returns_allowances`. | ❌ Нет |
+| `gross_rents` | number | – | ❌ Нет |
+| `has_capital_gain_income` | boolean | – | ✅ Да |
+| `compensation_of_officers` | number | – | ✅ Да |
+| `has_employees` | boolean | – | ✅ Да |
+| `salaries_wages` | number | Должно быть `0`, если `has_employees = false`. | ❌ Нет |
+| `taxes_licenses` | number | – | ❌ Нет |
+| `repairs_maintenance` | number | – | ❌ Нет |
+| `refund_or_tax_due` | string | Одно из: `REFUND`, `TAX DUE`. | ✅ Да |
+| `refund_amount` | number | Обязательно, если `refund_or_tax_due = REFUND`. | ❌ Нет |
+| `tax_due_amount` | number | Обязательно, если `refund_or_tax_due = TAX DUE`. | ❌ Нет |
+| `total_assets` | number | – | ❌ Нет |
+| `account_number` | string | Числовое значение. | ✅ Да |
+| `routing_number` | string | Корректный routing-номер банка США. | ✅ Да |
 
-**`future_years_percents_income[]`** (percentage change per year):
+**`future_years_percents_income[]`** (процентное изменение по годам):
 
-| Field | Type | Validation | Required |
+| Поле | Тип | Валидация | Обязательное |
 |---|---|---|---|
-| `how_income_change_this_year` | string | One of: `HIGHER`, `LOWER`. | ✅ Yes |
-| `percents_higher` | integer | 1–300. | ❌ No |
-| `percents_lower` | integer | 1–95. | ❌ No |
+| `how_income_change_this_year` | string | Одно из: `HIGHER`, `LOWER`. | ✅ Да |
+| `percents_higher` | integer | От 1 до 300. | ❌ Нет |
+| `percents_lower` | integer | От 1 до 95. | ❌ Нет |
 
 ---
 
-## Running locally
+## Запуск локально
 
 ```bash
 pip install -r requirements.txt
-python main.py            # serves on http://127.0.0.1:8000
+python main.py            # доступен на http://127.0.0.1:8000
 ```
 
-Unlike the root service, this one does **not** need a database or `config.json` — generated files are written straight to `./generated_files/` (created automatically), split into `transcripts/` and `personal/` subfolders, and served back by path via `GET /file/{file_path}`.
+В отличие от корневого сервиса, этому **не нужна** база данных или `config.json` — сгенерированные файлы записываются прямо в `./generated_files/` (создаётся автоматически), с разбивкой по подпапкам `transcripts/` и `personal/`, и отдаются обратно по пути через `GET /file/{file_path}`.
 
-See the [root README's Known limitations](../README.md#known-limitations) for caveats that apply here (synthetic supporting data, missing tax-transcript template, code duplicated from the root project).
+Оговорки из [раздела «Известные ограничения» корневого README](../README.md#известные-ограничения) применимы и здесь (синтетические вспомогательные данные, отсутствующий шаблон налоговой транскрипции, код, дублированный из корневого проекта).
