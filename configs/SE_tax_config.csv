@@ -1,0 +1,13 @@
+Year,FilingStatus,NetEarningsFactor,SSRatePercent,SSWageBase,MedicareRatePercent,AddMedRatePercent,AddMedThreshold,SETaxDeductionFactor
+2020,Single,0.9235,12.4,137700,2.9,0.9,200000,0.5
+2020,MarriedFilingJointly,0.9235,12.4,137700,2.9,0.9,250000,0.5
+2021,Single,0.9235,12.4,142800,2.9,0.9,200000,0.5
+2021,MarriedFilingJointly,0.9235,12.4,142800,2.9,0.9,250000,0.5
+2022,Single,0.9235,12.4,147000,2.9,0.9,200000,0.5
+2022,MarriedFilingJointly,0.9235,12.4,147000,2.9,0.9,250000,0.5
+2023,Single,0.9235,12.4,160200,2.9,0.9,200000,0.5
+2023,MarriedFilingJointly,0.9235,12.4,160200,2.9,0.9,250000,0.5
+2024,Single,0.9235,12.4,168600,2.9,0.9,200000,0.5
+2024,MarriedFilingJointly,0.9235,12.4,168600,2.9,0.9,250000,0.5
+2025,Single,0.9235,12.4,176100,2.9,0.9,200000,0.5
+2025,MarriedFilingJointly,0.9235,12.4,176100,2.9,0.9,250000,0.5

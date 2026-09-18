@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Form Generator</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --light-color: #ecf0f1;
+            --border-color: #bdc3c7;
+            --error-color: #e74c3c;
+            --success-color: #2ecc71;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--primary-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: var(--light-color);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .tab.active {
+            background-color: white;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 0 5px 5px 5px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-color);
+        }
+        
+        .form-section h3 {
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .dependent {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        
+        .dependent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .remove-dependent {
+            background-color: var(--error-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+        
+        .btn-danger {
+            background-color: var(--error-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .file-info {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .file-info h3 {
+            margin-bottom: 10px;
+        }
+        
+        .file-info p {
+            margin-bottom: 5px;
+        }
+        
+        .download-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .required::after {
+            content: " *";
+            color: var(--error-color);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .download-links {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tax Form Generator</h1>
+            <p>Generate your tax forms easily with this tool</p>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="generate">Generate Tax Form</div>
+            <div class="tab" data-tab="info">Get File Information</div>
+        </div>
+        
+        <div class="tab-content active" id="generate-tab">
+            <div id="alert-container"></div>
+            
+            <form id="tax-form">
+                <!-- Personal Information Section -->
+                <div class="form-section">
+                    <h3>Personal Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName" class="required">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lastName" class="required">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="maritalStatus" class="required">Marital Status</label>
+                        <select id="maritalStatus" name="maritalStatus" required>
+                            <option value="">Select Status</option>
+                            <option value="Single">Single</option>
+                            <option value="MarriedFilingJointly">Married Filing Jointly</option>
+                        </select>
+                    </div>
+                    
+                    <div id="spouse-info" class="hidden">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="spouseFirstName" class="required">Spouse First Name</label>
+                                <input type="text" id="spouseFirstName" name="spouseFirstName">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="spouseLastName" class="required">Spouse Last Name</label>
+                                <input type="text" id="spouseLastName" name="spouseLastName">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="residentialAddress" class="required">Residential Address</label>
+                        <input type="text" id="residentialAddress" name="residentialAddress" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="town" class="required">Town/City</label>
+                            <input type="text" id="town" name="town" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="state" class="required">State</label>
+                            <select id="state" name="state" required>
+                                <option value="">Select State</option>
+                                <!-- States will be populated by JavaScript -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="zipCode" class="required">ZIP Code</label>
+                            <input type="text" id="zipCode" name="zipCode" pattern="\d{5}(-\d{4})?" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ssn" class="required">SSN</label>
+                            <input type="text" id="ssn" name="ssn" pattern="\d{9}" placeholder="000000000" required>
+                        </div>
+                        
+                        <div class="form-group" id="spouse-ssn-group" class="hidden">
+                            <label for="spouseSsn" class="required">Spouse SSN</label>
+                            <input type="text" id="spouseSsn" name="spouseSsn" pattern="\d{9}" placeholder="000000000">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="occupation" class="required">Occupation</label>
+                            <input type="text" id="occupation" name="occupation" required>
+                        </div>
+                        
+                        <div class="form-group" id="spouse-occupation-group" class="hidden">
+                            <label for="spouseOccupation" class="required">Spouse Occupation</label>
+                            <input type="text" id="spouseOccupation" name="spouseOccupation">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Employment Information Section -->
+                <div class="form-section">
+                    <h3>Employment Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="employmentType" class="required">Employment Type</label>
+                        <select id="employmentType" name="employmentType" required>
+                            <option value="">Select Type</option>
+                            <option value="Employed">Employed</option>
+                            <option value="Sole Prop. / Self-employed">Sole Prop. / Self-employed</option>
+                        </select>
+                    </div>
+                    
+                    <div id="self-employed-info" class="hidden">
+                        <div class="form-group">
+                            <label for="principalBusiness" class="required">Principal Business/Profession</label>
+                            <input type="text" id="principalBusiness" name="principalBusiness">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ein">EIN (Optional)</label>
+                            <input type="text" id="ein" name="ein" pattern="\d{2}-\d{7}" placeholder="00-0000000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="naicsCode" class="required">NAICS Code</label>
+                            <input type="text" id="naicsCode" name="naicsCode" pattern="\d{6}" placeholder="000000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="businessName">Business Name (if different)</label>
+                            <input type="text" id="businessName" name="businessName">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="businessAddress">Business Address (if different)</label>
+                            <input type="text" id="businessAddress" name="businessAddress">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="businessTown">Business Town (if different)</label>
+                                <input type="text" id="businessTown" name="businessTown">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="businessState">Business State (if different)</label>
+                                <select id="businessState" name="businessState">
+                                    <option value="">Select State</option>
+                                    <!-- States will be populated by JavaScript -->
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="businessZip">Business ZIP (if different)</label>
+                                <input type="text" id="businessZip" name="businessZip" pattern="\d{5}(-\d{4})?" placeholder="00000 or 00000-0000">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tax Information Section -->
+                <div class="form-section">
+                    <h3>Tax Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="year" class="required">Tax Year</label>
+                            <select id="year" name="year" required>
+                                <option value="">Select Year</option>
+                                <option value="2025">2025</option>
+                                <option value="2024">2024</option>
+                                <option value="2023">2023</option>
+                                <option value="2022">2022</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="grossIncomeAmount" class="required">Gross Income Amount</label>
+                            <input type="number" id="grossIncomeAmount" name="grossIncomeAmount" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="refundOrPayment" class="required">Refund or Payment</label>
+                        <select id="refundOrPayment" name="refundOrPayment" required>
+                            <option value="">Select Option</option>
+                            <option value="TAX_REFUND">I want to claim a refund</option>
+                            <option value="TAX_DUE">I want to pay taxes due</option>
+                        </select>
+                    </div>
+                    
+                    <div id="refund-info" class="hidden">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="refundAmount" class="required">Refund Amount</label>
+                                <input type="number" id="refundAmount" name="refundAmount" min="0" step="0.01">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="bankAccountNumber" class="required">Bank Account Number</label>
+                                <input type="text" id="bankAccountNumber" name="bankAccountNumber" pattern="\d{1,17}" placeholder="From 1 to 17 digits">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="bankRoutingNumber" class="required">Bank Routing Number</label>
+                                <input type="text" id="bankRoutingNumber" name="bankRoutingNumber" pattern="\d{1,9}" placeholder="From 1 to 9 digits">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="payment-info" class="hidden">
+                        <div class="form-group">
+                            <label for="taxesDueAmount" class="required">Taxes Due Amount</label>
+                            <input type="number" id="taxesDueAmount" name="taxesDueAmount" min="0" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="preparationType" class="required">Tax Preparation Type</label>
+                        <select id="preparationType" name="preparationType" required>
+                            <option value="">Select Type</option>
+                            <option value="Self-prepared">Self-prepared</option>
+                            <option value="CPA-prepared">CPA-prepared</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Dependents Section -->
+                <div class="form-section">
+                    <h3>Dependents (Optional, max 4)</h3>
+                    <div id="dependents-container"></div>
+                    <button type="button" id="add-dependent" class="btn">Add Dependent</button>
+                </div>
+                
+                <!-- Signature Section -->
+                <div class="form-section">
+                    <h3>Signature</h3>
+                    
+                    <div class="form-group">
+                        <label for="signatureFile" class="required">Taxpayer's Signature (PNG, JPG)</label>
+                        <input type="file" id="signatureFile" name="signatureFile" accept=".png,.jpg,.jpeg" required>
+                        <div id="signaturePreview" style="margin-top: 10px; max-width: 300px;"></div>
+                        <textarea id="signature" name="signature" class="hidden" required></textarea>
+                    </div>
+                    
+                    <div id="spouse-signature-group" class="hidden">
+                        <div class="form-group">
+                            <label for="spouseSignatureFile" class="required">Spouse's Signature (PNG, JPG)</label>
+                            <input type="file" id="spouseSignatureFile" name="spouseSignatureFile" accept=".png,.jpg,.jpeg">
+                            <div id="spouseSignaturePreview" style="margin-top: 10px; max-width: 300px;"></div>
+                            <textarea id="spouseSignature" name="spouseSignature" class="hidden"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success">Generate Tax Form</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="tab-content" id="info-tab">
+            <div id="info-alert-container"></div>
+            
+            <div class="form-group">
+                <label for="file-id">File ID</label>
+                <input type="text" id="file-id" placeholder="Enter file ID">
+                <button type="button" id="get-info" class="btn" style="margin-top: 10px;">Get File Information</button>
+            </div>
+            
+            <div id="file-info-container" class="hidden">
+                <!-- File information will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Server configuration - change this when deploying
+        // Function to handle file to base64 conversion
+        function handleSignatureFile(file, previewId, textareaId) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const base64String = e.target.result;
+                // Extract just the base64 data without the data URL prefix
+                const base64Data = base64String.split(',')[1];
+                
+                // Set the value in the hidden textarea
+                document.getElementById(textareaId).value = base64Data;
+                
+                // Show preview
+                const preview = document.getElementById(previewId);
+                preview.innerHTML = `<img src="${base64String}" alt="Signature preview" style="max-width: 100%; border: 1px solid #ccc;">`;
+            };
+            
+            reader.onerror = function(error) {
+                console.error('Error reading file:', error);
+                showAlert('Error reading signature file', 'error');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // Function to setup file input listeners
+        function setupFileInputs() {
+            // Taxpayer signature
+            const signatureFileInput = document.getElementById('signatureFile');
+            signatureFileInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    handleSignatureFile(this.files[0], 'signaturePreview', 'signature');
+                }
+            });
+            
+            // Spouse signature
+            const spouseSignatureFileInput = document.getElementById('spouseSignatureFile');
+            spouseSignatureFileInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    handleSignatureFile(this.files[0], 'spouseSignaturePreview', 'spouseSignature');
+                }
+            });
+        }
+        const SERVER_HOST = "http://127.0.0.1:8000";
+        
+        // US States for dropdowns
+        const US_STATES = [
+            "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware",
+            "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+            "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+            "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico",
+            "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania",
+            "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+            "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+        ];
+        
+        // DOM elements
+        const taxForm = document.getElementById('tax-form');
+        const maritalStatusSelect = document.getElementById('maritalStatus');
+        const employmentTypeSelect = document.getElementById('employmentType');
+        const refundOrPaymentSelect = document.getElementById('refundOrPayment');
+        const dependentsContainer = document.getElementById('dependents-container');
+        const addDependentBtn = document.getElementById('add-dependent');
+        const alertContainer = document.getElementById('alert-container');
+        const infoAlertContainer = document.getElementById('info-alert-container');
+        const fileInfoContainer = document.getElementById('file-info-container');
+        const getInfoBtn = document.getElementById('get-info');
+        const fileIdInput = document.getElementById('file-id');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Initialize the form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Populate state dropdowns
+            populateStateDropdown('state');
+            populateStateDropdown('businessState');
+            
+            // Set up event listeners
+            maritalStatusSelect.addEventListener('change', toggleSpouseFields);
+            employmentTypeSelect.addEventListener('change', toggleSelfEmployedFields);
+            refundOrPaymentSelect.addEventListener('change', toggleRefundPaymentFields);
+            addDependentBtn.addEventListener('click', addDependent);
+            taxForm.addEventListener('submit', handleFormSubmit);
+            getInfoBtn.addEventListener('click', getFileInfo);
+            
+            // Set up file input listeners
+            setupFileInputs();
+
+            
+            // Set up tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+        });
+        
+        // Function to populate state dropdown
+        function populateStateDropdown(selectId) {
+            const select = document.getElementById(selectId);
+            US_STATES.forEach(state => {
+                const option = document.createElement('option');
+                option.value = state;
+                option.textContent = state;
+                select.appendChild(option);
+            });
+        }
+        
+        // Function to toggle spouse-related fields
+        function toggleSpouseFields() {
+            const isMarried = maritalStatusSelect.value === 'MarriedFilingJointly';
+            
+            // Toggle spouse information fields
+            document.getElementById('spouse-info').classList.toggle('hidden', !isMarried);
+            document.getElementById('spouse-ssn-group').classList.toggle('hidden', !isMarried);
+            document.getElementById('spouse-occupation-group').classList.toggle('hidden', !isMarried);
+            document.getElementById('spouse-signature-group').classList.toggle('hidden', !isMarried);
+            
+            // Set required attribute for spouse fields
+            const spouseFields = [
+                'spouseFirstName', 'spouseLastName', 'spouseSsn', 
+                'spouseOccupation', 'spouseSignatureFile'
+            ];
+            
+            spouseFields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
+                    element.required = isMarried;
+                }
+            });
+        }
+        
+        // Function to toggle self-employed fields
+        function toggleSelfEmployedFields() {
+            const isSelfEmployed = employmentTypeSelect.value === 'Sole Prop. / Self-employed';
+            
+            document.getElementById('self-employed-info').classList.toggle('hidden', !isSelfEmployed);
+            
+            // Set required attribute for self-employed fields
+            const selfEmployedFields = ['principalBusiness', 'naicsCode'];
+            
+            selfEmployedFields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
+                    element.required = isSelfEmployed;
+                }
+            });
+        }
+        
+        // Function to toggle refund/payment fields
+        function toggleRefundPaymentFields() {
+            const isRefund = refundOrPaymentSelect.value === 'TAX_REFUND';
+            const isPayment = refundOrPaymentSelect.value === 'TAX_DUE';
+            
+            document.getElementById('refund-info').classList.toggle('hidden', !isRefund);
+            document.getElementById('payment-info').classList.toggle('hidden', !isPayment);
+            
+            // Set required attribute for refund/payment fields
+            const refundFields = ['refundAmount', 'bankAccountNumber', 'bankRoutingNumber'];
+            const paymentFields = ['taxesDueAmount'];
+            
+            refundFields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
+                    element.required = isRefund;
+                }
+            });
+            
+            paymentFields.forEach(field => {
+                const element = document.getElementById(field);
+                if (element) {
+                    element.required = isPayment;
+                }
+            });
+        }
+        
+        // Function to add a dependent field
+        function addDependent() {
+            const dependentCount = document.querySelectorAll('.dependent').length;
+            
+            if (dependentCount >= 4) {
+                showAlert('You can only add up to 4 dependents', 'error');
+                return;
+            }
+            
+            const dependentDiv = document.createElement('div');
+            dependentDiv.className = 'dependent';
+            dependentDiv.innerHTML = `
+                <div class="dependent-header">
+                    <h4>Dependent ${dependentCount + 1}</h4>
+                    <button type="button" class="remove-dependent btn btn-danger">Remove</button>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="required">Name</label>
+                        <input type="text" name="dependentName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="required">SSN</label>
+                        <input type="text" name="dependentSsn" pattern="\\d{9}" required placeholder="000000000">
+                    </div>
+                    <div class="form-group">
+                        <label class="required">Relation</label>
+                        <input type="text" name="dependentRelation" required>
+                    </div>
+                </div>
+            `;
+            
+            dependentsContainer.appendChild(dependentDiv);
+            
+            // Add event listener to remove button
+            const removeBtn = dependentDiv.querySelector('.remove-dependent');
+            removeBtn.addEventListener('click', function() {
+                dependentDiv.remove();
+            });
+        }
+        
+        // Function to switch tabs
+        function switchTab(tabId) {
+            // Update active tab
+            tabs.forEach(tab => {
+                if (tab.getAttribute('data-tab') === tabId) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Update active tab content
+            tabContents.forEach(content => {
+                if (content.id === `${tabId}-tab`) {
+                    content.classList.add('active');
+                } else {
+                    content.classList.remove('active');
+                }
+            });
+        }
+        
+        // Function to show alerts
+        function showAlert(message, type = 'error', container = alertContainer) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            container.innerHTML = '';
+            container.appendChild(alertDiv);
+            
+            // Auto-remove success alerts after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 5000);
+            }
+        }
+        
+        // Function to handle form submission
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const submitBtn = taxForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Generating...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Prepare form data
+                const formData = new FormData(taxForm);
+                const jsonData = {};
+                
+                // Convert form data to JSON
+                for (const [key, value] of formData.entries()) {
+                    if (key.startsWith('dependent')) {
+                        // Handle dependents
+                        if (!jsonData.dependents) {
+                            jsonData.dependents = [];
+                        }
+                        
+                        // Get the index from the field name
+                        const match = key.match(/(\d+)$/);
+                        if (match) {
+                            const index = parseInt(match[1]) - 1;
+                            
+                            if (!jsonData.dependents[index]) {
+                                jsonData.dependents[index] = {};
+                            }
+                            
+                            const fieldName = key.replace(/\d+$/, '').replace('dependent', '').toLowerCase();
+                            jsonData.dependents[index][fieldName] = value;
+                        }
+                    } else {
+                        // Handle regular fields
+                        if (key === 'year' || key === 'grossIncomeAmount' || key === 'refundAmount' || 
+                            key === 'taxesDueAmount') {
+                            jsonData[key] = parseFloat(value);
+                        } else {
+                            jsonData[key] = value;
+                        }
+                    }
+                }
+                
+                // Send request to server
+                const response = await fetch(`${SERVER_HOST}/generate-file`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(jsonData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `Server error: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // Show success message
+                showAlert('Tax form generated successfully!', 'success');
+                
+                // Display download links
+                const downloadLinks = `
+                    <div class="file-info">
+                        <h3>Your Tax Form is Ready</h3>
+                        <p><strong>File ID:</strong> ${result.fileId}</p>
+                        <div class="download-links">
+                            <a href="${result.downloadLink}" class="btn" target="_blank">Download Tax Return</a>
+                            <a href="${result.transcriptLink}" class="btn" target="_blank">Download Transcript</a>
+                        </div>
+                    </div>
+                `;
+                
+                alertContainer.insertAdjacentHTML('beforeend', downloadLinks);
+                
+                // Reset form
+                taxForm.reset();
+                dependentsContainer.innerHTML = '';
+                
+            } catch (error) {
+                console.error('Error generating tax form:', error);
+                showAlert(`Error: ${error.message}`, 'error');
+            } finally {
+                // Restore button state
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                document.getElementById('signatureFile').value = '';
+                document.getElementById('signaturePreview').innerHTML = '';
+                document.getElementById('spouseSignatureFile').value = '';
+                document.getElementById('spouseSignaturePreview').innerHTML = '';
+            }
+        }
+        
+        // Function to get file information
+        async function getFileInfo() {
+            const fileId = fileIdInput.value.trim();
+            
+            if (!fileId) {
+                showAlert('Please enter a file ID', 'error', infoAlertContainer);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${SERVER_HOST}/info/${fileId}`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error('File not found');
+                    } else {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+                }
+                
+                const fileInfo = await response.json();
+                
+                // Display file information
+                let fileInfoHTML = `
+                    <div class="file-info">
+                        <h3>File Information</h3>
+                        <p><strong>Tax Year:</strong> ${fileInfo.taxYear}</p>
+                        <p><strong>Name:</strong> ${fileInfo.name}</p>
+                        <p><strong>Marital Status:</strong> ${fileInfo.maritalStatus}</p>
+                `;
+                
+                if (fileInfo.spouseName) {
+                    fileInfoHTML += `<p><strong>Spouse Name:</strong> ${fileInfo.spouseName}</p>`;
+                }
+                
+                fileInfoHTML += `
+                    <p><strong>SSN:</strong> ${fileInfo.SSN}</p>
+                `;
+                
+                if (fileInfo.spouseSSN) {
+                    fileInfoHTML += `<p><strong>Spouse SSN:</strong> ${fileInfo.spouseSSN}</p>`;
+                }
+                
+                fileInfoHTML += `<p><strong>Refund/Payment:</strong> ${fileInfo.refundOrOwed}</p>`;
+                
+                if (fileInfo.refundAmount) {
+                    fileInfoHTML += `<p><strong>Refund Amount:</strong> $${fileInfo.refundAmount.toFixed(2)}</p>`;
+                }
+                
+                if (fileInfo.owedAmount) {
+                    fileInfoHTML += `<p><strong>Owed Amount:</strong> $${fileInfo.owedAmount.toFixed(2)}</p>`;
+                }
+                
+                // Add dependents
+                if (fileInfo.dependent1Name) {
+                    fileInfoHTML += `<p><strong>Dependent 1:</strong> ${fileInfo.dependent1Name}</p>`;
+                }
+                
+                if (fileInfo.dependent2Name) {
+                    fileInfoHTML += `<p><strong>Dependent 2:</strong> ${fileInfo.dependent2Name}</p>`;
+                }
+                
+                if (fileInfo.dependent3Name) {
+                    fileInfoHTML += `<p><strong>Dependent 3:</strong> ${fileInfo.dependent3Name}</p>`;
+                }
+                
+                if (fileInfo.dependent4Name) {
+                    fileInfoHTML += `<p><strong>Dependent 4:</strong> ${fileInfo.dependent4Name}</p>`;
+                }
+                
+                // Add preparer information if available
+                if (fileInfo.preparerFirmName) {
+                    fileInfoHTML += `
+                        <h4>Preparer Information</h4>
+                        <p><strong>Firm Name:</strong> ${fileInfo.preparerFirmName}</p>
+                        <p><strong>Firm Address:</strong> ${fileInfo.preparerFirmAddress}</p>
+                        <p><strong>Firm EIN:</strong> ${fileInfo.preparerFirmEIN}</p>
+                        <p><strong>Firm PTIN:</strong> ${fileInfo.preparerFirmPTIN}</p>
+                    `;
+                }
+                
+                fileInfoHTML += `</div>`;
+                
+                fileInfoContainer.innerHTML = fileInfoHTML;
+                fileInfoContainer.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Error getting file info:', error);
+                showAlert(`Error: ${error.message}`, 'error', infoAlertContainer);
+                fileInfoContainer.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
